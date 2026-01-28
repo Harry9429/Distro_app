@@ -1,12 +1,33 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { NavLink, Outlet, useLocation, useMatch } from 'react-router-dom'
+import { NavLink, Navigate, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { CartProvider, useCart, type ProductForCart } from '../contexts/CartContext'
+import { useAuth, type Role } from '../contexts/AuthContext'
+import { canAccessPath, canAccessSidebarSection, canAccessTab, getDefaultPath } from '../lib/rolePermissions'
 import '../pages/adminOrdersPage.css'
 
-function TabLink({ to, label }: { to: string; label: string }) {
-  const match = useMatch(to)
-  const isActive = Boolean(match)
+const ROLE_LABEL: Record<Role, string> = {
+  merchant: 'Merchant',
+  distributor: 'Distributor',
+  admin: 'Admin',
+  purchasing_manager: 'Purchasing Manager',
+  finance_manager: 'Finance Manager',
+}
+
+function TabLink({
+  to,
+  label,
+  forceActive,
+  end,
+}: {
+  to: string
+  label: string
+  forceActive?: boolean
+  end?: boolean
+}) {
+  const match = useMatch(end ? { path: to, end: true } : to)
+  const isActive = Boolean(match) || Boolean(forceActive)
   return (
-    <NavLink to={to} className={`tab${isActive ? ' active' : ''}`}>
+    <NavLink to={to} end={end} className={`tab font-medium text-[15px]${isActive ? ' active' : ''}`}>
       {label}
     </NavLink>
   )
@@ -17,16 +38,23 @@ function SideLink({
   icon,
   label,
   badge,
+  forceActive,
+  end,
 }: {
   to: string
   icon: React.ReactNode
   label: string
   badge?: string
+  forceActive?: boolean
+  end?: boolean
 }) {
   return (
     <NavLink
       to={to}
-      className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
+      end={end}
+      className={({ isActive }) =>
+        `nav-item font-medium text-sm${isActive || forceActive ? ' active' : ''}`
+      }
     >
       {icon}
       <span>{label}</span>
@@ -35,12 +63,27 @@ function SideLink({
   )
 }
 
+const CART_IMG_PLACEHOLDER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23e5e7eb' width='80' height='80' rx='8'/%3E%3C/svg%3E"
+
 export default function AdminLayout() {
+  return (
+    <CartProvider>
+      <AdminLayoutInner />
+    </CartProvider>
+  )
+}
+
+function AdminLayoutInner() {
+  const cart = useCart()
+  const auth = useAuth()
+  const navigate = useNavigate()
   const location = useLocation()
   const storeButtonId = useId()
   const storeMenuId = useId()
   const storeDropdownRef = useRef<HTMLDivElement | null>(null)
   const userProfileTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const profileOverlayRef = useRef<HTMLDivElement | null>(null)
 
   const stores = [
     { id: 'cbd', name: 'CBD Living Store', emoji: '🏪' },
@@ -54,6 +97,20 @@ export default function AdminLayout() {
   >('cbd')
   const [isStoreMenuOpen, setIsStoreMenuOpen] = useState(false)
   const [isProfileCardOpen, setIsProfileCardOpen] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  const frequentReorders: (ProductForCart & { marketPrice?: string })[] = [
+    { id: 'f1', name: 'CBD Water', sku: 'PAT-234', yourPrice: '$10.00', marketPrice: '$18.00', image: CART_IMG_PLACEHOLDER },
+    { id: 'f2', name: 'CBD Sparkling Water Black Cherry', sku: 'PAT-234', yourPrice: '$10.00', marketPrice: '$18.00', image: CART_IMG_PLACEHOLDER },
+    { id: 'f3', name: 'CBD Sparkling Water Lemon', sku: 'PAT-234', yourPrice: '$10.00', marketPrice: '$18.00', image: CART_IMG_PLACEHOLDER },
+    { id: 'f4', name: 'CBD Sparkling Water Grapefruit', sku: 'PAT-234', yourPrice: '$10.00', marketPrice: '$18.00', image: CART_IMG_PLACEHOLDER },
+    { id: 'f5', name: 'CBD Sparkling Water Mango', sku: 'PAT-234', yourPrice: '$10.00', marketPrice: '$18.00', image: CART_IMG_PLACEHOLDER },
+  ]
+  const cartTotalQty = cart.items.reduce((s, i) => s + i.qty, 0)
+  const cartSubTotal = cart.items.reduce((s, i) => {
+    const n = parseInt(i.price.replace(/[^0-9]/g, ''), 10)
+    return s + (Number.isNaN(n) ? 0 : n)
+  }, 0)
 
   const selectedStore =
     stores.find((s) => s.id === selectedStoreId) ?? stores[0]
@@ -79,11 +136,24 @@ export default function AdminLayout() {
   }, [])
 
   useEffect(() => {
-    // Close the profile overlay when navigating away from screens that render it.
-    if (location.pathname !== '/overview' && location.pathname !== '/dashboard') {
+    if (!isProfileCardOpen) return
+    function onPointerDown(e: PointerEvent) {
+      const overlay = profileOverlayRef.current
+      const trigger = userProfileTriggerRef.current
+      if (overlay && e.target instanceof Node && overlay.contains(e.target)) return
+      if (trigger && e.target instanceof Node && trigger.contains(e.target)) return
       setIsProfileCardOpen(false)
     }
-  }, [location.pathname])
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setIsProfileCardOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [isProfileCardOpen])
 
   const profileCardContextValue = useMemo(
     () => ({
@@ -95,25 +165,35 @@ export default function AdminLayout() {
     [isProfileCardOpen],
   )
 
+  const role = auth.user?.role ?? 'admin'
+  if (auth.user && !canAccessPath(role, location.pathname)) {
+    return <Navigate to={getDefaultPath(role)} replace />
+  }
+
   return (
-    <div className="container">
+    <div className={`container${isSidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar${isSidebarCollapsed ? ' sidebar--collapsed' : ''}`} aria-expanded={!isSidebarCollapsed}>
         <div className="sidebar-header">
-          <div className="menu-icon" aria-label="Menu">
+          <button
+            type="button"
+            className="menu-icon"
+            aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            onClick={() => setIsSidebarCollapsed((v) => !v)}
+          >
             <span />
             <span />
             <span />
-          </div>
-          <div className="logo">
-            <div className="logo-icon" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#2a2d35" />
-                <path d="M2 17L12 22L22 17" stroke="#2a2d35" strokeWidth="2" />
-                <path d="M2 12L12 17L22 12" stroke="#2a2d35" strokeWidth="2" />
+          </button>
+          <div className="logo logo--dashboard">
+            <div className="logo-icon flex items-center justify-center shrink-0" aria-hidden="true">
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" />
+                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" />
+                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" />
               </svg>
             </div>
-            <span>Distributor OS</span>
+            <span className="font-semibold text-white">Distributor OS</span>
           </div>
         </div>
 
@@ -130,7 +210,7 @@ export default function AdminLayout() {
             <div className="store-icon" aria-hidden="true">
               {selectedStore.emoji}
             </div>
-            <div className="store-name">{selectedStore.name}</div>
+            <div className="store-name font-medium text-white">{selectedStore.name}</div>
             <span
               className={`store-caret${isStoreMenuOpen ? ' open' : ''}`}
               aria-hidden="true"
@@ -170,12 +250,14 @@ export default function AdminLayout() {
         </div>
 
         <nav className="nav-menu" aria-label="Main navigation">
+          {canAccessSidebarSection(role, '/dashboard') && (
           <SideLink
             to="/dashboard"
             label="Dashboard"
+            forceActive={location.pathname === '/overview'}
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -189,13 +271,15 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/team') && (
           <SideLink
             to="/team"
             label="Team"
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -209,14 +293,17 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/orders') && (
           <SideLink
             to="/orders"
             label="Orders"
             badge="10"
+            end
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -227,13 +314,16 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/approvals') && (
           <SideLink
             to="/approvals"
             label="Approvals"
+            forceActive={location.pathname === '/approvals' || location.pathname.startsWith('/orders/view/')}
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -245,13 +335,15 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/billing') && (
           <SideLink
             to="/billing"
             label="Invoice & Billing"
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -263,13 +355,15 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/analytics') && (
           <SideLink
             to="/analytics"
             label="Analytics"
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -281,13 +375,16 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/products') && (
           <SideLink
             to="/products"
             label="Products"
+            forceActive={location.pathname.startsWith('/products')}
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -300,15 +397,17 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
         </nav>
 
         <div className="sidebar-footer">
+          {canAccessSidebarSection(role, '/settings') && (
           <SideLink
             to="/settings"
             label="Settings"
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -320,13 +419,15 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/resources') && (
           <SideLink
             to="/resources"
             label="Resources"
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -341,13 +442,15 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
+          {canAccessSidebarSection(role, '/submit-ticket') && (
           <SideLink
             to="/submit-ticket"
             label="Submit Ticket"
             icon={
               <svg
-                className="nav-item-icon"
+                className="nav-item-icon w-5 h-5 shrink-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -359,13 +462,17 @@ export default function AdminLayout() {
               </svg>
             }
           />
+          )}
 
-          <div style={{ marginTop: 24 }}>
+          <div className="user-card-trigger-wrap">
             <button
               ref={userProfileTriggerRef}
               type="button"
               className="user-profile user-profile-trigger"
               onClick={() => setIsProfileCardOpen((v) => !v)}
+              aria-label="Open user card"
+              aria-expanded={isProfileCardOpen}
+              aria-haspopup="true"
             >
               <div
                 className="user-avatar"
@@ -375,8 +482,8 @@ export default function AdminLayout() {
                 }}
               />
               <div className="user-info">
-                <div className="user-name">Hanzla Shahid</div>
-                <div className="user-role">Admin</div>
+                <div className="user-name font-medium text-white text-sm">{auth.user?.name ?? auth.user?.email ?? 'User'}</div>
+                <div className="user-role text-xs text-white/80">{auth.user ? ROLE_LABEL[auth.user.role] : 'User'}</div>
               </div>
               <div className="user-menu" aria-hidden="true">
                 ⋮
@@ -388,32 +495,32 @@ export default function AdminLayout() {
 
       {/* Main Content */}
       <main className="main-content">
-        {/* Top Bar */}
-        <div className="top-bar">
-          <div className="welcome-section">
-            <h1 className="welcome-text">Welcome Hanzla</h1>
-            <div className="user-badge">Distributor</div>
+        <div className="main-content-inner">
+          <div className="main-content-primary">
+            {/* Top Bar */}
+            <div className="top-bar flex items-center justify-between">
+          <div className="welcome-section flex items-center gap-4 shrink-0">
+            <h1 className="welcome-text text-2xl font-bold text-gray-900">Welcome {auth.user?.name ?? auth.user?.email?.split('@')[0] ?? 'User'}</h1>
+            <div className="user-badge text-sm font-medium text-gray-700">{auth.user ? ROLE_LABEL[auth.user.role] : 'User'}</div>
           </div>
-          <div className="top-bar-actions">
-            <div className="search-bar">
+          <div className="top-bar-actions flex items-center gap-5 shrink-0">
+            <div className="search-bar flex items-center gap-3">
               <svg
-                width="18"
-                height="18"
+                className="search-bar-icon w-[18px] h-[18px] shrink-0 text-gray-500"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#6b7280"
+                stroke="currentColor"
                 strokeWidth="2"
                 aria-hidden="true"
               >
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.35-4.35" />
               </svg>
-              <input type="text" placeholder="Search" />
+              <input type="text" className="search-bar-input min-w-0 flex-1" placeholder="Search" />
             </div>
-            <button className="icon-button" type="button" aria-label="Notifications">
+            <button className="icon-button flex items-center justify-center shrink-0" type="button" aria-label="Notifications">
               <svg
-                width="22"
-                height="22"
+                className="icon-button-svg w-[22px] h-[22px] shrink-0 block text-gray-600"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -425,10 +532,15 @@ export default function AdminLayout() {
               </svg>
               <span className="notification-badge" />
             </button>
-            <button className="icon-button" type="button" aria-label="Cart">
+            <button
+              className="icon-button flex items-center justify-center shrink-0"
+              type="button"
+              aria-label="Cart"
+              aria-expanded={cart.isOpen}
+              onClick={() => (cart.isOpen ? cart.closeCart() : cart.openCart())}
+            >
               <svg
-                width="22"
-                height="22"
+                className="icon-button-svg w-[22px] h-[22px] shrink-0 block text-gray-600"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -443,17 +555,271 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs – hidden on Settings page. All tabs shown; disabled when role cannot access */}
+        {location.pathname !== '/settings' && (
         <div className="tabs">
-          <TabLink to="/overview" label="Overview" />
-          <TabLink to="/orders" label="Orders" />
-          <TabLink to="/approvals" label="Approvals" />
-          <TabLink to="/products" label="Products" />
+          {canAccessTab(role, '/overview') ? (
+            <TabLink
+              to="/overview"
+              label="Overview"
+              forceActive={location.pathname === '/dashboard'}
+            />
+          ) : (
+            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Overview</span>
+          )}
+          {canAccessTab(role, '/orders') ? (
+            <TabLink to="/orders" label="Orders" end />
+          ) : (
+            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Orders</span>
+          )}
+          {canAccessTab(role, '/billing') ? (
+            <TabLink to="/billing" label="Invoice & Billing" forceActive={location.pathname === '/billing'} />
+          ) : (
+            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Invoice & Billing</span>
+          )}
+          {canAccessTab(role, '/analytics') ? (
+            <TabLink to="/analytics" label="Analytics" forceActive={location.pathname === '/analytics'} />
+          ) : (
+            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Analytics</span>
+          )}
+          {canAccessTab(role, '/approvals') ? (
+            <TabLink to="/approvals" label="Approvals" forceActive={location.pathname === '/approvals' || location.pathname.startsWith('/orders/view/')} />
+          ) : (
+            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Approvals</span>
+          )}
+          {canAccessTab(role, '/products') ? (
+            <TabLink to="/products" label="Products" forceActive={location.pathname.startsWith('/products')} />
+          ) : (
+            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Products</span>
+          )}
         </div>
+        )}
 
         <ProfileCardContext.Provider value={profileCardContextValue}>
           <Outlet />
         </ProfileCardContext.Provider>
+          </div>
+        </div>
+
+        {/* User card – opens when user clicks their name/avatar in sidebar; matches reference design */}
+        {isProfileCardOpen && (
+          <div
+            ref={profileOverlayRef}
+            className="profile-card-overlay profile-card-overlay--layout active"
+            role="dialog"
+            aria-label="User card"
+          >
+            <div className="profile-card-header">
+              <div className="currently-in text-sm font-medium text-gray-500">Currently in</div>
+              <div className="profile-card-user">
+                <div
+                  className="profile-card-avatar"
+                  style={{
+                    background:
+                      "url(\"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2250%22 fill=%22%23e74c3c%22/></svg>\") center/cover",
+                  }}
+                />
+                <div className="profile-card-info">
+                  <div className="profile-card-name font-semibold text-gray-900">{auth.user?.name ?? auth.user?.email ?? 'User'}</div>
+                  <div className="profile-card-role text-sm font-medium text-gray-600">{auth.user ? ROLE_LABEL[auth.user.role] : 'User'}</div>
+                  <div className="profile-card-email text-sm text-gray-500">{auth.user?.email ?? ''}</div>
+                </div>
+                <div className="profile-card-check">✓</div>
+              </div>
+            </div>
+            <div className="profile-card-menu">
+              <NavLink to="/settings" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
+                <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.07 5.07l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.07-5.07l4.24-4.24" />
+                </svg>
+                <span>Profile Settings</span>
+              </NavLink>
+              <NavLink to="/billing" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
+                <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
+                <span>Billing</span>
+              </NavLink>
+              <NavLink to="/team" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
+                <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                <span>Add User</span>
+                <span className="profile-menu-arrow">→</span>
+              </NavLink>
+              <button
+                type="button"
+                className="profile-menu-item profile-menu-item--logout font-medium text-gray-700"
+                onClick={() => {
+                  setIsProfileCardOpen(false)
+                  auth.logout()
+                  navigate('/login')
+                }}
+              >
+                <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Cart overlay - fixed panel from right, half screen, backdrop blur; not part of layout */}
+        <div
+          className={`cart-overlay${cart.isOpen ? ' cart-overlay--open' : ''}`}
+          aria-hidden={!cart.isOpen}
+        >
+          <div
+            className="cart-backdrop"
+            role="presentation"
+            aria-hidden
+            onClick={cart.closeCart}
+          />
+          <aside className="cart-sidebar cart-drawer" aria-label="Your Order">
+              <div className="cart-sidebar-header">
+                <h2 className="cart-sidebar-title">Your Order</h2>
+                <button
+                  type="button"
+                  className="cart-close-btn"
+                  aria-label="Close cart"
+                  onClick={() => cart.closeCart()}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div className="cart-sidebar-body">
+                <div className="cart-order-items">
+                  {cart.items.length === 0 ? (
+                    <div className="cart-order-empty">Your order is empty</div>
+                  ) : (
+                  <>
+                  {cart.items.map((item) => (
+                    <div key={item.id} className="cart-order-item">
+                      <div className="cart-order-item-row">
+                        <div className="cart-order-item-top">
+                          <img src={item.image} alt="" className="cart-order-item-img" />
+                          <div className="cart-order-item-info">
+                            <div className="cart-order-item-sku">SKU: {item.sku}</div>
+                            <div className="cart-order-item-name">{item.name}</div>
+                            <div className="cart-order-item-meta">Size: {item.size}, Color: {item.color}</div>
+                          </div>
+                        </div>
+                        <div className="cart-order-item-actions">
+                          <div className="cart-qty-wrap">
+                            <button
+                              type="button"
+                              className="cart-qty-btn"
+                              aria-label="Decrease quantity"
+                              onClick={() => cart.updateQty(item.id, item.qty - 1)}
+                            >
+                              −
+                            </button>
+                            <input
+                              type="number"
+                              className="cart-qty-input"
+                              value={item.qty}
+                              onChange={(e) => {
+                                const v = parseInt(e.target.value, 10)
+                                if (!Number.isNaN(v) && v >= 0) cart.updateQty(item.id, v)
+                              }}
+                              min={0}
+                              aria-label={`Quantity for ${item.name}`}
+                            />
+                            <button
+                              type="button"
+                              className="cart-qty-btn"
+                              aria-label="Increase quantity"
+                              onClick={() => cart.updateQty(item.id, item.qty + 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            className="cart-delete-btn"
+                            aria-label={`Remove ${item.name}`}
+                            onClick={() => cart.removeItem(item.id)}
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              <line x1="10" y1="11" x2="10" y2="17" />
+                              <line x1="14" y1="11" x2="14" y2="17" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      <div className="cart-order-item-price">Price: {item.price}</div>
+                    </div>
+                  ))}
+                  </>
+                  )}
+                </div>
+                <div className="cart-frequent">
+                  <button type="button" className="cart-frequent-title">
+                    Frequent Reorders <span aria-hidden="true">&gt;</span>
+                  </button>
+                  <div className="cart-frequent-list">
+                    {frequentReorders.map((p) => (
+                      <div key={p.id} className="cart-frequent-card">
+                        <div className="cart-frequent-img-wrap">
+                          <img src={p.image} alt="" className="cart-frequent-img" />
+                          <button type="button" className="cart-frequent-eye" aria-label="View">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          </button>
+                        </div>
+                        <div className="cart-frequent-sku">SKU: {p.sku}</div>
+                        <div className="cart-frequent-name">{p.name}</div>
+                        <div className="cart-frequent-pricing">
+                          <span className="cart-frequent-your">Your Price: {p.yourPrice}</span>
+                          <span className="cart-frequent-market">{p.marketPrice}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="cart-frequent-add"
+                          onClick={() => cart.addItem({ id: p.id, name: p.name, sku: p.sku, yourPrice: p.yourPrice, image: p.image }, 1)}
+                        >
+                          Add to Order
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="cart-sidebar-footer">
+                <div className="cart-summary">
+                  <div className="cart-summary-row">
+                    <span>Selected Item</span>
+                    <span>{cartTotalQty}</span>
+                  </div>
+                  <div className="cart-summary-row">
+                    <span>Sub Total</span>
+                    <span>${cartSubTotal}</span>
+                  </div>
+                </div>
+                <div className="cart-sidebar-actions">
+                  <button type="button" className="cart-btn cart-btn-save">
+                    Save Order for Later
+                  </button>
+                  <button type="button" className="cart-btn cart-btn-checkout">
+                    Checkout
+                  </button>
+                </div>
+              </div>
+            </aside>
+        </div>
       </main>
     </div>
   )
@@ -466,7 +832,6 @@ export type ProfileCardContextValue = {
   triggerRef: React.RefObject<HTMLButtonElement | null>
 }
 
-export const ProfileCardContext = React.createContext<ProfileCardContextValue | null>(
-  null,
-)
+export const ProfileCardContext =
+  React.createContext<ProfileCardContextValue | null>(null)
 

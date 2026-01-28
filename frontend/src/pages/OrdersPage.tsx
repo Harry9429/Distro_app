@@ -1,34 +1,116 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
+
+type OrderStatus = 'approved' | 'pending' | 'rejected'
+
+type OrderRow = {
+  id: string
+  placedBy: string
+  role: string
+  itemCount: string
+  total: string
+  status: OrderStatus
+}
+
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  approved: 'Approved',
+  pending: 'Pending',
+  rejected: 'Rejected',
+}
+
 export default function OrdersPage() {
+  const initialRows = useMemo<OrderRow[]>(
+    () => [
+      {
+        id: 'Order ID #4573',
+        placedBy: 'Hanzla',
+        role: 'Admin',
+        itemCount: '15 items',
+        total: '$1500',
+        status: 'approved',
+      },
+      {
+        id: 'Order ID #4724',
+        placedBy: 'Sherry',
+        role: 'Assistant',
+        itemCount: '20 items',
+        total: '$2000',
+        status: 'pending',
+      },
+      {
+        id: 'Order ID #4773',
+        placedBy: 'Areeba',
+        role: 'Assistant',
+        itemCount: '10 items',
+        total: '$1000',
+        status: 'rejected',
+      },
+      {
+        id: 'Order ID #4863',
+        placedBy: 'Sherry',
+        role: 'Assistant',
+        itemCount: '50 items',
+        total: '$1000',
+        status: 'approved',
+      },
+    ],
+    [],
+  )
+
+  const [rows, setRows] = useState<OrderRow[]>(initialRows)
+  const [openForOrderId, setOpenForOrderId] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    function onPointerDown(e: PointerEvent) {
+      const menu = menuRef.current
+      if (!menu) return
+      if (e.target instanceof Node && menu.contains(e.target)) return
+      setOpenForOrderId(null)
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpenForOrderId(null)
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
+
   return (
     <div className="content-area">
-      <h2 className="section-title">Quick Overview</h2>
+      <h2 className="section-title text-2xl font-semibold text-gray-900">Quick Overview</h2>
 
       {/* Stats Grid */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-label">Total Orders Placed</div>
-          <div className="stat-value">12.4k</div>
+          <div className="stat-label text-sm font-medium text-gray-500">Total Orders Placed</div>
+          <div className="stat-value text-xl font-bold text-gray-900">12.4k</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Active Orders</div>
-          <div className="stat-value">3</div>
+          <div className="stat-label text-sm font-medium text-gray-500">Active Orders</div>
+          <div className="stat-value text-xl font-bold text-gray-900">3</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Backordered / Issues</div>
-          <div className="stat-value">2</div>
+          <div className="stat-label text-sm font-medium text-gray-500">Backordered / Issues</div>
+          <div className="stat-value text-xl font-bold text-gray-900">2</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label">Pending Approvals</div>
-          <div className="stat-value">4</div>
+          <div className="stat-label text-sm font-medium text-gray-500">Pending Approvals</div>
+          <div className="stat-value text-xl font-bold text-gray-900">4</div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="filters">
-        <button className="filter-button" type="button">
+        <button className="filter-button text-sm font-medium text-gray-700" type="button">
           Filter by status <span aria-hidden="true">▼</span>
         </button>
-        <button className="filter-button" type="button">
+        <button className="filter-button text-sm font-medium text-gray-700" type="button">
           Filter by date <span aria-hidden="true">▼</span>
         </button>
       </div>
@@ -38,7 +120,7 @@ export default function OrdersPage() {
         <div className="action-card">
           <div className="action-header">
             <svg
-              className="action-icon"
+              className="action-icon w-6 h-6 shrink-0 text-gray-600"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -77,7 +159,7 @@ export default function OrdersPage() {
         <div className="action-card">
           <div className="action-header">
             <svg
-              className="action-icon"
+              className="action-icon w-6 h-6 shrink-0 text-gray-600"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -117,7 +199,7 @@ export default function OrdersPage() {
         <div className="action-card">
           <div className="action-header">
             <svg
-              className="action-icon"
+              className="action-icon w-6 h-6 shrink-0 text-gray-600"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -156,7 +238,7 @@ export default function OrdersPage() {
 
       {/* Order Requests Table */}
       <div className="order-requests-section">
-        <h2>
+        <h2 className="text-lg font-semibold text-gray-900">
           Order Requests <span aria-hidden="true">▼</span>
         </h2>
         <div className="table-container">
@@ -174,86 +256,85 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4573</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Hanzla</td>
-                <td>Admin</td>
-                <td>15 items</td>
-                <td>$1500</td>
-                <td>
-                  <span className="status-badge approved">Approved</span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4724</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Sherry</td>
-                <td>Assistant</td>
-                <td>20 items</td>
-                <td>$2000</td>
-                <td>
-                  <span className="status-badge pending">Pending</span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4773</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Areeba</td>
-                <td>Assistant</td>
-                <td>10 items</td>
-                <td>$1000</td>
-                <td>
-                  <span className="status-badge rejected">Rejected</span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4863</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Sherry</td>
-                <td>Assistant</td>
-                <td>50 items</td>
-                <td>$1000</td>
-                <td>
-                  <span className="status-badge approved">Approved</span>
-                </td>
-              </tr>
+              {rows.map((row) => (
+                <tr key={row.id}>
+                  <td>
+                    <input type="checkbox" className="checkbox" />
+                  </td>
+                  <td>
+                    <strong>{row.id}</strong>
+                  </td>
+                  <td>
+                    <Link
+                      to={`/orders/view/${row.id.replace(/^Order ID #/, '')}`}
+                      state={{ status: row.status }}
+                      className="view-request-button"
+                    >
+                      View Request <span aria-hidden="true">▼</span>
+                    </Link>
+                  </td>
+                  <td>{row.placedBy}</td>
+                  <td>{row.role}</td>
+                  <td>{row.itemCount}</td>
+                  <td>{row.total}</td>
+                  <td>
+                    <div className="status-dropdown-wrap">
+                      <button
+                        type="button"
+                        className={`status-dropdown ${row.status}`}
+                        aria-haspopup="menu"
+                        aria-expanded={openForOrderId === row.id}
+                        onClick={() =>
+                          setOpenForOrderId((prev) =>
+                            prev === row.id ? null : row.id,
+                          )
+                        }
+                      >
+                        {STATUS_LABEL[row.status]}
+                        <span aria-hidden="true">▼</span>
+                      </button>
+
+                      {openForOrderId === row.id && (
+                        <div
+                          ref={menuRef}
+                          className="status-menu"
+                          role="menu"
+                          aria-label={`Status options for ${row.id}`}
+                        >
+                          {(
+                            ['approved', 'pending', 'rejected'] as const
+                          ).map((status) => (
+                            <button
+                              key={status}
+                              type="button"
+                              role="menuitem"
+                              className={`status-menu-item ${status}${
+                                status === row.status ? ' active' : ''
+                              }`}
+                              onClick={() => {
+                                setRows((prev) =>
+                                  prev.map((r) =>
+                                    r.id === row.id
+                                      ? { ...r, status }
+                                      : r,
+                                  ),
+                                )
+                                setOpenForOrderId(null)
+                              }}
+                            >
+                              <span
+                                className={`status-dot ${status}`}
+                                aria-hidden="true"
+                              />
+                              {STATUS_LABEL[status]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
