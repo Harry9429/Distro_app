@@ -88,20 +88,20 @@ export default function OrdersPage() {
       {/* Stats Grid */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">Total Orders Placed</div>
-          <div className="stat-value text-xl font-bold text-gray-900">12.4k</div>
+          <div className="stat-label">Total Orders Placed</div>
+          <div className="stat-value">12.4k</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">Active Orders</div>
-          <div className="stat-value text-xl font-bold text-gray-900">3</div>
+          <div className="stat-label">Active Orders</div>
+          <div className="stat-value">3</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">Backordered / Issues</div>
-          <div className="stat-value text-xl font-bold text-gray-900">2</div>
+          <div className="stat-label">Backordered / Issues</div>
+          <div className="stat-value">2</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">Pending Approvals</div>
-          <div className="stat-value text-xl font-bold text-gray-900">4</div>
+          <div className="stat-label">Pending Approvals</div>
+          <div className="stat-value">4</div>
         </div>
       </div>
 

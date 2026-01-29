@@ -17,6 +17,7 @@ import ResourcesPage from './pages/ResourcesPage'
 import SettingsPage from './pages/SettingsPage'
 import SubmitTicketPage from './pages/SubmitTicketPage'
 import TeamPage from './pages/TeamPage'
+import StandaloneDashboardPage from './pages/StandaloneDashboardPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const auth = useAuth()
@@ -36,6 +37,7 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginGuard><LoginPage /></LoginGuard>} />
+          <Route path="/standalone" element={<StandaloneDashboardPage />} />
           <Route path="/" element={<RequireAuth><AdminLayout /></RequireAuth>}>
             <Route index element={<Navigate to="/orders" replace />} />
             <Route path="dashboard" element={<DashboardPage />} />

@@ -37,20 +37,20 @@ export default function FinanceManagerOverview() {
 
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">Total Orders Placed</div>
-          <div className="stat-value text-xl font-bold text-gray-900">12.4k</div>
+          <div className="stat-label">Total Orders Placed</div>
+          <div className="stat-value">12.4k</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">Total Amount Spent</div>
-          <div className="stat-value text-xl font-bold text-gray-900">$205k</div>
+          <div className="stat-label">Total Amount Spent</div>
+          <div className="stat-value">$205k</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">Pending Order Payment</div>
-          <div className="stat-value text-xl font-bold text-gray-900">$3550</div>
+          <div className="stat-label">Pending Order Payment</div>
+          <div className="stat-value">$3550</div>
         </div>
         <div className="stat-card">
-          <div className="stat-label text-sm font-medium text-gray-500">In Transit Order</div>
-          <div className="stat-value text-xl font-bold text-gray-900">4</div>
+          <div className="stat-label">In Transit Order</div>
+          <div className="stat-value">4</div>
         </div>
       </div>
 

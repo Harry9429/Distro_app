@@ -57,9 +57,10 @@ function nameFromEmail(email: string): string {
   return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
 }
 
-/** Fixed accounts: same password 1234 for all */
+/** Fixed accounts: same password 1234 for all. Role label in UI: Admin, Distributor, etc. */
 const FIXED_ACCOUNTS: Record<string, { role: Role; name: string }> = {
   'hanzla@admin.com': { role: 'admin', name: 'Hanzla' },
+  'distributor@admin.com': { role: 'distributor', name: 'Distributor Admin' },
   'areeba@admin.com': { role: 'purchasing_manager', name: 'Areeba' },
   'kumail@admin.com': { role: 'finance_manager', name: 'Kumail' },
 }

@@ -6,6 +6,7 @@ type OrderStatus = 'approved' | 'pending' | 'rejected'
 type ApprovalRow = {
   id: string
   orderId: string
+  approvedBy: string
   placedBy: string
   role: string
   itemCount: string
@@ -13,8 +14,6 @@ type ApprovalRow = {
   status: OrderStatus
   deliveredOn?: string
   orderTotal: string
-  productThumbs: string[]
-  moreCount: number
 }
 
 const STATUS_LABEL: Record<OrderStatus, string> = {
@@ -23,23 +22,30 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
   rejected: 'Rejected',
 }
 
-const THUMB =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect fill='%23e5e7eb' width='64' height='64' rx='8'/%3E%3C/svg%3E"
-
 const ROWS: ApprovalRow[] = [
-  { id: '1', orderId: '4573', placedBy: 'Hanzla', role: 'Admin', itemCount: '15 items', total: '$1500', status: 'approved', deliveredOn: '4 Jan', orderTotal: '$2,674', productThumbs: [THUMB, THUMB, THUMB, THUMB, THUMB], moreCount: 4 },
-  { id: '2', orderId: '4724', placedBy: 'Sherry', role: 'Assistant', itemCount: '20 items', total: '$2000', status: 'pending', orderTotal: '$2,100', productThumbs: [THUMB, THUMB, THUMB], moreCount: 2 },
-  { id: '3', orderId: '4773', placedBy: 'Areeba', role: 'Assistant', itemCount: '10 items', total: '$1000', status: 'rejected', orderTotal: '$1,000', productThumbs: [THUMB, THUMB], moreCount: 0 },
-  { id: '4', orderId: '4863', placedBy: 'Sherry', role: 'Assistant', itemCount: '50 items', total: '$1000', status: 'approved', deliveredOn: '5 Jan', orderTotal: '$5,200', productThumbs: [THUMB, THUMB, THUMB, THUMB], moreCount: 6 },
+  { id: '1', orderId: '4531', approvedBy: 'Hanzla', placedBy: 'Hanzla', role: 'Admin', itemCount: '15 items', total: '$1500', status: 'approved', deliveredOn: '4 jan', orderTotal: '$2,674' },
+  { id: '2', orderId: '4724', approvedBy: 'Hanzla', placedBy: 'Sherry', role: 'Assistant', itemCount: '20 items', total: '$2000', status: 'pending', orderTotal: '$2,100' },
+  { id: '3', orderId: '4773', approvedBy: 'Hanzla', placedBy: 'Areeba', role: 'Assistant', itemCount: '10 items', total: '$1000', status: 'rejected', orderTotal: '$1,000' },
+  { id: '4', orderId: '4573', approvedBy: 'Hanzla', placedBy: 'Sherry', role: 'Assistant', itemCount: '50 items', total: '$1000', status: 'approved', deliveredOn: '4 jan', orderTotal: '$2,674' },
 ]
 
 type TimeFilter = 'monthly' | 'weekly' | 'today'
 
+function ThWithCaret({ children }: { children: React.ReactNode }) {
+  return (
+    <th>
+      <span className="approvals-th-content">{children}</span>
+      <span className="approvals-th-caret" aria-hidden>▼</span>
+    </th>
+  )
+}
+
 export default function ApprovalsPage() {
   const [search, setSearch] = useState('')
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('today')
-  const [expandedId, setExpandedId] = useState<string | null>('1')
+  const [expandedId, setExpandedId] = useState<string | null>('4')
   const [rows, setRows] = useState<ApprovalRow[]>(ROWS)
+  const [noteReason, setNoteReason] = useState('Order changed.')
   const statusMenuRef = useRef<HTMLDivElement | null>(null)
   const [openStatusId, setOpenStatusId] = useState<string | null>(null)
 
@@ -66,19 +72,15 @@ export default function ApprovalsPage() {
     }
   }, [openStatusId])
 
+  const selectedOrderTotal = expandedId ? rows.find((r) => r.id === expandedId)?.orderTotal ?? '$2,674' : '$2,674'
+
   return (
     <div className="content-area approvals-page">
       <header className="approvals-header">
-        <div className="approvals-header-left">
-          <button type="button" className="approvals-dropdown-trigger" aria-haspopup="listbox">
-            Approvals <span className="approvals-dropdown-caret" aria-hidden="true">▼</span>
-          </button>
-        </div>
+        <button type="button" className="approvals-dropdown-trigger" aria-haspopup="listbox">
+          Approvals <span className="approvals-dropdown-caret" aria-hidden>▼</span>
+        </button>
         <div className="approvals-search-wrap">
-          <svg className="approvals-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
           <input
             type="search"
             className="approvals-search-input"
@@ -87,46 +89,43 @@ export default function ApprovalsPage() {
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search orders or buyers"
           />
+          <svg className="approvals-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
         </div>
         <div className="approvals-time-filters">
-          <button
-            type="button"
-            className={`approvals-time-btn${timeFilter === 'monthly' ? ' active' : ''}`}
-            onClick={() => setTimeFilter('monthly')}
-          >
+          <button type="button" className={`approvals-time-btn${timeFilter === 'monthly' ? ' active' : ''}`} onClick={() => setTimeFilter('monthly')}>
             Monthly
           </button>
-          <button
-            type="button"
-            className={`approvals-time-btn${timeFilter === 'weekly' ? ' active' : ''}`}
-            onClick={() => setTimeFilter('weekly')}
-          >
+          <button type="button" className={`approvals-time-btn${timeFilter === 'weekly' ? ' active' : ''}`} onClick={() => setTimeFilter('weekly')}>
             Weekly
           </button>
-          <button
-            type="button"
-            className={`approvals-time-btn${timeFilter === 'today' ? ' active' : ''}`}
-            onClick={() => setTimeFilter('today')}
-          >
+          <button type="button" className={`approvals-time-btn${timeFilter === 'today' ? ' active' : ''}`} onClick={() => setTimeFilter('today')}>
             Today
           </button>
         </div>
       </header>
 
-      <section className="approvals-section">
-        <h2 className="approvals-section-title">Order Approvals</h2>
-        <div className="table-container approvals-table-wrap">
+      <section className="approvals-card">
+        <h2 className="approvals-card-title">
+          <button type="button" className="approvals-card-title-btn" aria-haspopup="listbox">
+            Approval History <span className="approvals-dropdown-caret" aria-hidden>▼</span>
+          </button>
+        </h2>
+
+        <div className="approvals-table-wrap">
           <table className="approvals-table">
             <thead>
               <tr>
-                <th style={{ width: 40 }} />
-                <th>Order ID</th>
-                <th />
-                <th>Placed By</th>
-                <th>Role</th>
-                <th>Item Count</th>
-                <th>Total</th>
-                <th>Status</th>
+                <th style={{ width: 44 }} />
+                <ThWithCaret>Order ID</ThWithCaret>
+                <ThWithCaret>Approved By</ThWithCaret>
+                <ThWithCaret>Placed By</ThWithCaret>
+                <ThWithCaret>Role</ThWithCaret>
+                <ThWithCaret>Item Count</ThWithCaret>
+                <ThWithCaret>Total</ThWithCaret>
+                <ThWithCaret>Status</ThWithCaret>
               </tr>
             </thead>
             <tbody>
@@ -134,22 +133,24 @@ export default function ApprovalsPage() {
                 <React.Fragment key={row.id}>
                   <tr className={expandedId === row.id ? 'expanded' : ''}>
                     <td>
-                      <input type="checkbox" className="checkbox" aria-label={`Select ${row.orderId}`} />
+                      <input type="checkbox" className="approvals-checkbox" aria-label={`Select order ${row.orderId}`} />
                     </td>
                     <td>
-                      <strong>{row.orderId}</strong>
-                    </td>
-                    <td>
+                      <span className="approvals-order-id">Order ID #{row.orderId}</span>
                       <button
                         type="button"
-                        className="approvals-view-details"
+                        className={`approvals-view-details${expandedId === row.id ? ' expanded' : ''}`}
                         onClick={() => setExpandedId((prev) => (prev === row.id ? null : row.id))}
                         aria-expanded={expandedId === row.id}
                         aria-label={expandedId === row.id ? 'Collapse details' : 'View details'}
                       >
-                        View Details <span aria-hidden="true">{expandedId === row.id ? '▲' : '▼'}</span>
+                        View Details <span aria-hidden>{expandedId === row.id ? '▲' : '▼'}</span>
                       </button>
+                      {expandedId === row.id && row.deliveredOn && (
+                        <div className="approvals-delivered-on">Delivered on {row.deliveredOn}</div>
+                      )}
                     </td>
+                    <td>{row.approvedBy}</td>
                     <td>{row.placedBy}</td>
                     <td>{row.role}</td>
                     <td>{row.itemCount}</td>
@@ -158,14 +159,14 @@ export default function ApprovalsPage() {
                       <div className="status-dropdown-wrap" ref={openStatusId === row.id ? statusMenuRef : null}>
                         <button
                           type="button"
-                          className={`status-dropdown ${row.status}`}
+                          className={`approvals-status-btn ${row.status}`}
                           aria-haspopup="listbox"
                           aria-expanded={openStatusId === row.id}
                           onClick={() => setOpenStatusId((prev) => (prev === row.id ? null : row.id))}
                         >
-                          <span className={`status-dot ${row.status}`} aria-hidden="true" />
+                          <span className={`status-dot ${row.status}`} aria-hidden />
                           {STATUS_LABEL[row.status]}
-                          <span aria-hidden="true">▼</span>
+                          <span className="approvals-status-caret" aria-hidden>▼</span>
                         </button>
                         {openStatusId === row.id && (
                           <div className="status-menu" role="listbox">
@@ -186,40 +187,34 @@ export default function ApprovalsPage() {
                       </div>
                     </td>
                   </tr>
-                  {expandedId === row.id && (
-                    <tr className="approvals-detail-row">
-                      <td colSpan={8} className="approvals-detail-cell">
-                        <div className="approvals-detail-inner">
-                          <div className="approvals-detail-label">
-                            Order ID #{row.orderId}
-                            {row.deliveredOn ? ` Delivered on ${row.deliveredOn}` : ''}
-                          </div>
-                          <div className="approvals-product-thumbs">
-                            {row.productThumbs.map((src, i) => (
-                              <img key={i} src={src} alt="" className="approvals-thumb" />
-                            ))}
-                            {row.moreCount > 0 && (
-                              <div className="approvals-thumb-more">+{row.moreCount}</div>
-                            )}
-                          </div>
-                          <div className="approvals-detail-actions">
-                            <Link
-                              to={`/orders/view/${row.orderId}`}
-                              state={{ status: row.status }}
-                              className="approvals-order-details-btn"
-                            >
-                              Order Details
-                            </Link>
-                            <span className="approvals-order-total">Order Total {row.orderTotal}</span>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
                 </React.Fragment>
               ))}
             </tbody>
           </table>
+        </div>
+
+        <div className="approvals-note-section">
+          <label className="approvals-note-label">Note/Reason</label>
+          <textarea
+            className="approvals-note-input"
+            value={noteReason}
+            onChange={(e) => setNoteReason(e.target.value)}
+            rows={3}
+            aria-label="Note or reason"
+          />
+        </div>
+
+        <div className="approvals-card-footer">
+          {expandedId ? (
+            <Link to={`/orders/view/${rows.find((r) => r.id === expandedId)?.orderId ?? ''}`} className="approvals-order-details-btn">
+              Order Details
+            </Link>
+          ) : (
+            <button type="button" className="approvals-order-details-btn" disabled>
+              Order Details
+            </button>
+          )}
+          <span className="approvals-order-total">Order Total {selectedOrderTotal}</span>
         </div>
       </section>
     </div>

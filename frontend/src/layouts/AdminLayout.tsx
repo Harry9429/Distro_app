@@ -40,6 +40,7 @@ function SideLink({
   badge,
   forceActive,
   end,
+  disabled,
 }: {
   to: string
   icon: React.ReactNode
@@ -47,7 +48,21 @@ function SideLink({
   badge?: string
   forceActive?: boolean
   end?: boolean
+  disabled?: boolean
 }) {
+  if (disabled) {
+    return (
+      <span
+        className="nav-item nav-item--disabled font-medium text-sm"
+        aria-disabled="true"
+        title="You don't have access to this section"
+      >
+        {icon}
+        <span>{label}</span>
+        {badge ? <span className="nav-badge">{badge}</span> : null}
+      </span>
+    )
+  }
   return (
     <NavLink
       to={to}
@@ -188,9 +203,8 @@ function AdminLayoutInner() {
           <div className="logo logo--dashboard">
             <div className="logo-icon flex items-center justify-center shrink-0" aria-hidden="true">
               <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" />
-                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" />
-                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" />
+                <rect x="3" y="5" width="9" height="14" rx="3" fill="currentColor" />
+                <rect x="8" y="7" width="10" height="10" rx="3" fill="currentColor" />
               </svg>
             </div>
             <span className="font-semibold text-white">Distributor OS</span>
@@ -250,11 +264,11 @@ function AdminLayoutInner() {
         </div>
 
         <nav className="nav-menu" aria-label="Main navigation">
-          {canAccessSidebarSection(role, '/dashboard') && (
           <SideLink
             to="/dashboard"
             label="Dashboard"
             forceActive={location.pathname === '/overview'}
+            disabled={!canAccessSidebarSection(role, '/dashboard')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -271,12 +285,10 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/team') && (
           <SideLink
             to="/team"
             label="Team"
+            disabled={!canAccessSidebarSection(role, '/team')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -293,14 +305,12 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/orders') && (
           <SideLink
             to="/orders"
             label="Orders"
             badge="10"
             end
+            disabled={!canAccessSidebarSection(role, '/orders')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -314,13 +324,11 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/approvals') && (
           <SideLink
             to="/approvals"
             label="Approvals"
             forceActive={location.pathname === '/approvals' || location.pathname.startsWith('/orders/view/')}
+            disabled={!canAccessSidebarSection(role, '/approvals')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -335,12 +343,10 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/billing') && (
           <SideLink
             to="/billing"
             label="Invoice & Billing"
+            disabled={!canAccessSidebarSection(role, '/billing')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -355,12 +361,10 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/analytics') && (
           <SideLink
             to="/analytics"
             label="Analytics"
+            disabled={!canAccessSidebarSection(role, '/analytics')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -375,13 +379,11 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/products') && (
           <SideLink
             to="/products"
             label="Products"
             forceActive={location.pathname.startsWith('/products')}
+            disabled={!canAccessSidebarSection(role, '/products')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -397,14 +399,13 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
         </nav>
 
         <div className="sidebar-footer">
-          {canAccessSidebarSection(role, '/settings') && (
           <SideLink
             to="/settings"
             label="Settings"
+            disabled={!canAccessSidebarSection(role, '/settings')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -419,12 +420,10 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/resources') && (
           <SideLink
             to="/resources"
             label="Resources"
+            disabled={!canAccessSidebarSection(role, '/resources')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -442,12 +441,10 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
-
-          {canAccessSidebarSection(role, '/submit-ticket') && (
           <SideLink
             to="/submit-ticket"
             label="Submit Ticket"
+            disabled={!canAccessSidebarSection(role, '/submit-ticket')}
             icon={
               <svg
                 className="nav-item-icon w-5 h-5 shrink-0"
@@ -462,7 +459,6 @@ function AdminLayoutInner() {
               </svg>
             }
           />
-          )}
 
           <div className="user-card-trigger-wrap">
             <button
@@ -500,11 +496,15 @@ function AdminLayoutInner() {
             {/* Top Bar */}
             <div className="top-bar flex items-center justify-between">
           <div className="welcome-section flex items-center gap-4 shrink-0">
-            <h1 className="welcome-text text-2xl font-bold text-gray-900">Welcome {auth.user?.name ?? auth.user?.email?.split('@')[0] ?? 'User'}</h1>
+            <h1 className="welcome-text text-2xl font-bold text-gray-900 flex items-center gap-2">
+              Welcome {auth.user?.name ?? auth.user?.email?.split('@')[0] ?? 'User'}
+              <span className="welcome-caret" aria-hidden>▼</span>
+            </h1>
             <div className="user-badge text-sm font-medium text-gray-700">{auth.user ? ROLE_LABEL[auth.user.role] : 'User'}</div>
           </div>
           <div className="top-bar-actions flex items-center gap-5 shrink-0">
             <div className="search-bar flex items-center gap-3">
+              <input type="text" className="search-bar-input min-w-0 flex-1" placeholder="Search" />
               <svg
                 className="search-bar-icon w-[18px] h-[18px] shrink-0 text-gray-500"
                 viewBox="0 0 24 24"
@@ -516,7 +516,6 @@ function AdminLayoutInner() {
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.35-4.35" />
               </svg>
-              <input type="text" className="search-bar-input min-w-0 flex-1" placeholder="Search" />
             </div>
             <button className="icon-button flex items-center justify-center shrink-0" type="button" aria-label="Notifications">
               <svg
@@ -555,42 +554,30 @@ function AdminLayoutInner() {
           </div>
         </div>
 
-        {/* Tabs – hidden on Settings page. All tabs shown; disabled when role cannot access */}
+        {/* Tabs – hidden on Settings page. Only show tabs the role can access (no disabled tabs) */}
         {location.pathname !== '/settings' && (
         <div className="tabs">
-          {canAccessTab(role, '/overview') ? (
+          {canAccessTab(role, '/overview') && (
             <TabLink
               to="/overview"
               label="Overview"
               forceActive={location.pathname === '/dashboard'}
             />
-          ) : (
-            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Overview</span>
           )}
-          {canAccessTab(role, '/orders') ? (
+          {canAccessTab(role, '/orders') && (
             <TabLink to="/orders" label="Orders" end />
-          ) : (
-            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Orders</span>
           )}
-          {canAccessTab(role, '/billing') ? (
+          {canAccessTab(role, '/billing') && (
             <TabLink to="/billing" label="Invoice & Billing" forceActive={location.pathname === '/billing'} />
-          ) : (
-            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Invoice & Billing</span>
           )}
-          {canAccessTab(role, '/analytics') ? (
+          {canAccessTab(role, '/analytics') && (
             <TabLink to="/analytics" label="Analytics" forceActive={location.pathname === '/analytics'} />
-          ) : (
-            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Analytics</span>
           )}
-          {canAccessTab(role, '/approvals') ? (
+          {canAccessTab(role, '/approvals') && (
             <TabLink to="/approvals" label="Approvals" forceActive={location.pathname === '/approvals' || location.pathname.startsWith('/orders/view/')} />
-          ) : (
-            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Approvals</span>
           )}
-          {canAccessTab(role, '/products') ? (
+          {canAccessTab(role, '/products') && (
             <TabLink to="/products" label="Products" forceActive={location.pathname.startsWith('/products')} />
-          ) : (
-            <span className="tab tab--disabled font-medium text-[15px] text-gray-400" aria-disabled="true">Products</span>
           )}
         </div>
         )}

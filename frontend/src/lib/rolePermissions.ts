@@ -1,6 +1,6 @@
 import type { Role } from '../contexts/AuthContext'
 
-/** Path prefixes or exact paths a role can access */
+/** Path prefixes or exact paths a role can access. Admin has all tabs and all screens. */
 const ROLE_PATH_PREFIXES: Record<Role, string[]> = {
   admin: ['/dashboard', '/overview', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/settings', '/resources', '/submit-ticket'],
   purchasing_manager: ['/dashboard', '/overview', '/orders', '/products', '/settings', '/resources', '/submit-ticket'],
