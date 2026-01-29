@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 const AUTH_USER_KEY = 'distro_app_user'
 const AUTH_USERS_KEY = 'distro_app_users'
@@ -18,6 +18,7 @@ type AuthContextValue = {
   user: AuthUser | null
   login: (email: string, password: string) => { ok: boolean; error?: string; user?: AuthUser }
   signup: (email: string, password: string, role: Role) => { ok: boolean; error?: string; user?: AuthUser }
+  addUserByAdmin: (email: string, name: string, role: Role, initialPassword?: string) => { ok: boolean; error?: string }
   logout: () => void
 }
 
@@ -57,9 +58,10 @@ function nameFromEmail(email: string): string {
   return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
 }
 
-/** Fixed accounts: same password 1234 for all. Role label in UI: Admin, Distributor, etc. */
+/** Fixed accounts: same password 1234 for all. Hanzla is a distributor. */
 const FIXED_ACCOUNTS: Record<string, { role: Role; name: string }> = {
-  'hanzla@admin.com': { role: 'admin', name: 'Hanzla' },
+  'admin@admin.com': { role: 'admin', name: 'Admin' },
+  'hanzla@admin.com': { role: 'distributor', name: 'Hanzla' },
   'distributor@admin.com': { role: 'distributor', name: 'Distributor Admin' },
   'areeba@admin.com': { role: 'purchasing_manager', name: 'Areeba' },
   'kumail@admin.com': { role: 'finance_manager', name: 'Kumail' },
@@ -75,6 +77,20 @@ export function useAuth(): AuthContextValue {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(parseStoredUser)
   const isLoggedIn = user !== null
+
+  // Sync from localStorage when window gains focus (e.g. logged in as different role in another tab)
+  useEffect(() => {
+    const onFocus = () => {
+      const stored = parseStoredUser()
+      setUser((prev) => {
+        if (!stored && prev) return null
+        if (stored && (!prev || prev.email !== stored.email || prev.role !== stored.role)) return stored
+        return prev
+      })
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [])
 
   const login = useCallback((email: string, password: string) => {
     const e = email.trim().toLowerCase()
@@ -121,9 +137,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try { localStorage.removeItem(AUTH_USER_KEY) } catch {}
   }, [])
 
+  /** Admin adds a team member: creates account so they can sign in. Default password 1234 if not provided. */
+  const addUserByAdmin = useCallback((email: string, name: string, role: Role, initialPassword = '1234') => {
+    const e = email.trim().toLowerCase()
+    const displayName = name.trim() || nameFromEmail(e)
+    if (!e) return { ok: false, error: 'Email is required' }
+    if (!isValidEmail(email.trim())) return { ok: false, error: 'Please enter a valid email address' }
+    if (FIXED_ACCOUNTS[e]) return { ok: false, error: 'An account with this email already exists.' }
+    const accounts = getStoredAccounts()
+    if (accounts[e]) return { ok: false, error: 'An account with this email already exists.' }
+    const p = initialPassword.length >= 6 ? initialPassword : '1234'
+    accounts[e] = { password: p, role, name: displayName }
+    setStoredAccounts(accounts)
+    return { ok: true }
+  }, [])
+
   const value = useMemo(
-    () => ({ isLoggedIn, user, login, signup, logout }),
-    [isLoggedIn, user, login, signup, logout],
+    () => ({ isLoggedIn, user, login, signup, addUserByAdmin, logout }),
+    [isLoggedIn, user, login, signup, addUserByAdmin, logout],
   )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

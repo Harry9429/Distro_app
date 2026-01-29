@@ -45,7 +45,7 @@ export default function ApprovalsPage() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('today')
   const [expandedId, setExpandedId] = useState<string | null>('4')
   const [rows, setRows] = useState<ApprovalRow[]>(ROWS)
-  const [noteReason, setNoteReason] = useState('Order changed.')
+  const [noteReason, setNoteReason] = useState('Order changed')
   const statusMenuRef = useRef<HTMLDivElement | null>(null)
   const [openStatusId, setOpenStatusId] = useState<string | null>(null)
 
@@ -71,8 +71,6 @@ export default function ApprovalsPage() {
       document.removeEventListener('keydown', onKeyDown)
     }
   }, [openStatusId])
-
-  const selectedOrderTotal = expandedId ? rows.find((r) => r.id === expandedId)?.orderTotal ?? '$2,674' : '$2,674'
 
   return (
     <div className="content-area approvals-page">
@@ -120,6 +118,7 @@ export default function ApprovalsPage() {
               <tr>
                 <th style={{ width: 44 }} />
                 <ThWithCaret>Order ID</ThWithCaret>
+                <ThWithCaret>View Details</ThWithCaret>
                 <ThWithCaret>Approved By</ThWithCaret>
                 <ThWithCaret>Placed By</ThWithCaret>
                 <ThWithCaret>Role</ThWithCaret>
@@ -137,6 +136,8 @@ export default function ApprovalsPage() {
                     </td>
                     <td>
                       <span className="approvals-order-id">Order ID #{row.orderId}</span>
+                    </td>
+                    <td>
                       <button
                         type="button"
                         className={`approvals-view-details${expandedId === row.id ? ' expanded' : ''}`}
@@ -146,9 +147,6 @@ export default function ApprovalsPage() {
                       >
                         View Details <span aria-hidden>{expandedId === row.id ? '▲' : '▼'}</span>
                       </button>
-                      {expandedId === row.id && row.deliveredOn && (
-                        <div className="approvals-delivered-on">Delivered on {row.deliveredOn}</div>
-                      )}
                     </td>
                     <td>{row.approvedBy}</td>
                     <td>{row.placedBy}</td>
@@ -187,34 +185,37 @@ export default function ApprovalsPage() {
                       </div>
                     </td>
                   </tr>
+                  {expandedId === row.id && (
+                    <tr className="approvals-expanded-row">
+                      <td colSpan={9} className="approvals-expanded-cell">
+                        <div className="approvals-expanded-inner">
+                          {row.deliveredOn && (
+                            <div className="approvals-delivered-on">Delivered on {row.deliveredOn}</div>
+                          )}
+                          <div className="approvals-note-section">
+                            <label className="approvals-note-label">Note/Reason</label>
+                            <textarea
+                              className="approvals-note-input"
+                              value={noteReason}
+                              onChange={(e) => setNoteReason(e.target.value)}
+                              rows={3}
+                              aria-label="Note or reason"
+                            />
+                          </div>
+                          <div className="approvals-card-footer">
+                            <Link to={`/orders/view/${row.orderId}`} className="approvals-order-details-btn">
+                              Order Details
+                            </Link>
+                            <span className="approvals-order-total">Order Total {row.orderTotal}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </React.Fragment>
               ))}
             </tbody>
           </table>
-        </div>
-
-        <div className="approvals-note-section">
-          <label className="approvals-note-label">Note/Reason</label>
-          <textarea
-            className="approvals-note-input"
-            value={noteReason}
-            onChange={(e) => setNoteReason(e.target.value)}
-            rows={3}
-            aria-label="Note or reason"
-          />
-        </div>
-
-        <div className="approvals-card-footer">
-          {expandedId ? (
-            <Link to={`/orders/view/${rows.find((r) => r.id === expandedId)?.orderId ?? ''}`} className="approvals-order-details-btn">
-              Order Details
-            </Link>
-          ) : (
-            <button type="button" className="approvals-order-details-btn" disabled>
-              Order Details
-            </button>
-          )}
-          <span className="approvals-order-total">Order Total {selectedOrderTotal}</span>
         </div>
       </section>
     </div>

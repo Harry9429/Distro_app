@@ -929,77 +929,49 @@ body {
   flex-wrap: wrap;
 }
 
-/* Actions: outline button (transparent bg, border), dropdown chevron */
-.billing-actions-btn {
+/* Export: white bg, rounded corners, blue border on focus/hover, document-down-arrow icon */
+.billing-export-btn {
   padding: 8px 14px;
   border: 1px solid #d1d5db;
-  background: transparent;
+  background: #ffffff;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 400;
-  color: #374151;
+  font-weight: 500;
+  color: #1a1a1a;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.billing-actions-btn:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
-  color: #1a1a1a;
+.billing-export-btn:hover,
+.billing-export-btn:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
-.billing-actions-btn .billing-view-caret {
-  border-left-width: 3px;
-  border-right-width: 3px;
-  border-top-width: 4px;
+.billing-export-icon {
+  flex-shrink: 0;
 }
 
-/* Void Invoice: solid black bg, white text, same rounded corners */
-.billing-void-btn {
+/* Details: solid black bg, white text, rounded corners */
+.billing-details-btn {
   padding: 8px 14px;
   background: #1a1a1a;
-  color: white;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 400;
-  cursor: pointer;
-}
-
-.billing-void-btn:hover {
-  background: #333;
-}
-
-.billing-actions-menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
-  min-width: 160px;
-  background: white;
-  border: 1px solid #e5e5e5;
-  border-radius: 8px;
-  padding: 6px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-  z-index: 20;
-}
-
-.billing-actions-menu-item {
-  width: 100%;
-  padding: 10px 12px;
-  border: none;
-  background: none;
-  border-radius: 6px;
-  font-size: 13px;
   font-weight: 500;
-  color: #374151;
   cursor: pointer;
-  text-align: left;
+  text-decoration: none;
+  display: inline-block;
 }
 
-.billing-actions-menu-item:hover {
-  background: #f5f5f5;
+.billing-details-btn:hover {
+  background: #333;
+  color: #ffffff;
 }
 
 .billing-pagination {
@@ -1066,7 +1038,7 @@ body {
 
 /* Settings page – tabs: Profile Setting, Billing, + Add User, + Add Store */
 .settings-page {
-  background: #fff;
+  background: #E8ECF2;
 }
 
 .settings-header {
@@ -1133,6 +1105,301 @@ body {
   color: #6b7280;
   font-size: 15px;
   margin: 0;
+}
+
+/* Settings Billing tab – Billing Details (100% match reference) */
+.settings-billing-tab {
+  padding-bottom: 48px;
+}
+
+.settings-billing-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 28px 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.settings-billing-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .settings-billing-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Gray card: rounded corners, subtle shadow, light grey border */
+.settings-billing-card {
+  position: relative;
+  background: #f0f0f0;
+  border-radius: 12px;
+  padding: 28px 52px 28px 28px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.settings-billing-card-help {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #d1d5db;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.settings-billing-card-help:hover {
+  background: #9ca3af;
+  color: #374151;
+}
+
+.settings-billing-help-icon {
+  line-height: 1;
+}
+
+.settings-billing-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-billing-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-billing-row--action {
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-billing-label {
+  font-size: 14px;
+  color: #374151;
+  min-width: 0;
+}
+
+.settings-billing-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.settings-billing-edit-btn {
+  padding: 8px 18px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.settings-billing-edit-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Payment card (Visa) – same gray card, VISA logo blue bottom right */
+.settings-billing-card--payment {
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.settings-billing-card-type {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 18px;
+}
+
+.settings-billing-payment-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-billing-payment-row {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.settings-billing-change-btn {
+  align-self: flex-start;
+  padding: 8px 18px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+.settings-billing-change-btn:hover {
+  background: #1d4ed8;
+}
+
+.settings-billing-payment-masked {
+  font-size: 14px;
+  color: #374151;
+  letter-spacing: 0.04em;
+}
+
+.settings-billing-payment-exp {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.settings-billing-card-logo {
+  margin-top: auto;
+  padding-top: 20px;
+  text-align: right;
+}
+
+.settings-billing-visa-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: 0.08em;
+}
+
+/* Settings Add User tab – Add Team Member (Admin only) */
+.settings-add-user-tab {
+  padding-bottom: 48px;
+}
+
+.settings-add-user-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 28px 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.settings-add-user-message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.settings-add-user-message--success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.settings-add-user-message--error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.settings-add-user-form {
+  max-width: 640px;
+}
+
+.settings-add-user-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .settings-add-user-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-add-user-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-add-user-field label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.settings-add-user-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.settings-add-user-attachment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.settings-add-user-attachment:hover {
+  border-color: #9ca3af;
+  background: #f5f5f5;
+}
+
+.settings-add-user-attachment-icon {
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+.settings-add-user-notes {
+  min-height: 100px;
+  resize: vertical;
+  margin-bottom: 24px;
+}
+
+.settings-add-user-btn {
+  padding: 12px 24px;
+  background: #1a1a1a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-add-user-btn:hover {
+  background: #333;
 }
 
 /* Profile Setting tab */
@@ -2886,6 +3153,8 @@ td {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  background: #f5f5f5;
+  min-height: 100%;
 }
 
 .approvals-header {
@@ -2917,7 +3186,7 @@ td {
 
 .approvals-dropdown-caret {
   font-size: 10px;
-  opacity: 0.7;
+  color: #1a1a1a;
 }
 
 .approvals-search-wrap {
@@ -2988,12 +3257,12 @@ td {
   background: #333;
 }
 
-/* White card: Approval History + table + Note/Reason + footer */
+/* White card: Approval History + table (subtly rounded, soft shadow on light grey bg) */
 .approvals-card {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid #e5e5e5;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 24px;
   margin-bottom: 32px;
 }
@@ -3047,7 +3316,7 @@ td {
 
 .approvals-th-caret {
   font-size: 10px;
-  color: #6b7280;
+  color: #1a1a1a;
   vertical-align: middle;
 }
 
@@ -3059,7 +3328,20 @@ td {
 }
 
 .approvals-table tbody tr.expanded td {
-  border-bottom-color: #e5e7eb;
+  border-bottom: none;
+}
+
+/* Expanded detail row: full-width, lighter grey than card */
+.approvals-expanded-row td.approvals-expanded-cell {
+  padding: 0;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+  background: #f8f9fa;
+}
+
+.approvals-expanded-inner {
+  padding: 16px 16px 0;
+  background: #f8f9fa;
 }
 
 .approvals-checkbox {
@@ -3069,43 +3351,45 @@ td {
 }
 
 .approvals-order-id {
-  display: block;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 6px;
 }
 
+/* View Details button – Figma: radius 16px, border 1.5px, padding 4px 10px, fill #C5CBCE */
 .approvals-view-details {
-  padding: 8px 12px;
-  background: #f0f0f0;
-  border: none;
-  border-radius: 6px;
+  padding: 4px 10px;
+  background: #C5CBCE;
+  border: 1.5px solid #ffffff;
+  border-radius: 16px;
   font-size: 13px;
   font-weight: 500;
   color: #1a1a1a;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-height: 28px;
 }
 
 .approvals-view-details:hover {
-  background: #e5e5e5;
+  background: #b8bfc2;
 }
 
 .approvals-view-details.expanded {
   background: #1a1a1a;
   color: white;
+  border-color: #1a1a1a;
 }
 
 .approvals-view-details.expanded:hover {
   background: #333;
+  border-color: #333;
 }
 
 .approvals-delivered-on {
   font-size: 13px;
   color: #6b7280;
-  margin-top: 8px;
+  margin-bottom: 12px;
 }
 
 .approvals-status-btn {
@@ -3114,7 +3398,7 @@ td {
   gap: 8px;
   padding: 6px 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 9999px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -3141,9 +3425,9 @@ td {
   opacity: 0.7;
 }
 
-/* Note/Reason section */
+/* Note/Reason section (inside expanded block) */
 .approvals-note-section {
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .approvals-note-label {
@@ -3164,6 +3448,7 @@ td {
   color: #1a1a1a;
   resize: vertical;
   min-height: 80px;
+  background: #fff;
 }
 
 .approvals-note-input:focus {
@@ -3171,45 +3456,43 @@ td {
   border-color: #1a1a1a;
 }
 
-/* Card footer: Order Details button + Order Total */
+/* White card footer (inside expanded section): Order Details left, Order Total right */
 .approvals-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e5e5;
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .approvals-order-details-btn {
   padding: 12px 20px;
-  background: #1a1a1a;
-  color: white;
+  background: #2B2C2E;
+  color: #ffffff;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
   cursor: pointer;
   display: inline-block;
+  border: none;
 }
 
 .approvals-order-details-btn:hover {
-  background: #333;
-  color: white;
-}
-
-.approvals-order-details-btn:disabled {
-  background: #9ca3af;
-  color: white;
-  cursor: not-allowed;
-  opacity: 0.8;
+  background: #1a1a1b;
+  color: #ffffff;
 }
 
 .approvals-order-total {
   font-size: 16px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #000000;
 }
 
 .products-section {
@@ -4481,6 +4764,1062 @@ td {
   text-decoration: underline;
 }
 
+/* Merchant Sign-Up Flow – Step 1: same login background (dark + wavy), light form card */
+.login-page.merchant-signup-flow {
+  background: #2a2d35;
+  align-items: flex-start;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.login-page.merchant-signup-flow::before {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI4MTAiIHZpZXdCb3g9IjAgMCAxNDQwIDgxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyMDAgMTBDMTIwMCAxMCAxMzAwIDEwMCAxMzUwIDIwMEMxNDAwIDMwMCAxNDQwIDUwMCAxNDQwIDcwMEMxNDQwIDgwMCAxNDQwIDgxMCAxNDQwIDgxMCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExNTAgMjBDMTE1MCAyMCAxMjUwIDExMCAxMzAwIDIxMEMxMzUwIDMxMCAxMzkwIDUxMCAxMzkwIDcxMEMxMzkwIDgxMCAxMzkwIDgxMCAxMzkwIDgxMCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExMDAgMzBDMTEwMCAzMCAxMjAwIDEyMCAxMjUwIDIyMEMxMzAwIDMyMCAxMzQwIDUyMCAxMzQwIDcyMEMxMzQwIDgyMCAxMzQwIDgxMCAxMzQwIDgxMCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTEwNTAgNDBDMTA1MCA0MCAxMTUwIDEzMCAxMjAwIDIzMEMxMjUwIDMzMCAxMjkwIDUzMCAxMjkwIDczMEMxMjkwIDgzMCAxMjkwIDgxMCAxMjkwIDgxMCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTEwMDAgNTBDMTAwMCA1MCAxMTAwIDE0MCAxMTUwIDI0MEMxMjAwIDM0NCAxMjQwIDU0NCAxMjQwIDc0NEMxMjQwIDg0NCAxMjQwIDgxMCAxMjQwIDgxMCIgc3Ryb2tlPSIjNmI3MjgwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTIwMCA3MDBDMjAwIDcwMCAxMDAgNjAwIDUwIDQwMEMwIDIwMCAwIDAgMCAwIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMjUwIDY5MEMyNTAgNjkwIDE1MCA1OTAgMTAwIDM5MEM1MCAxOTAgNTAgMCA1MCAwIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMzAwIDY4MEMzMDAgNjgwIDIwMCA1ODAgMTUwIDM4MEMxMDAgMTgwIDEwMCAwIDEwMCAwIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMzUwIDY3MEMzNTAgNjcwIDI1MCA1NzAgMjAwIDM3MEMxNTAgMTcwIDE1MCAwIDE1MCAwIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNNDAwIDY2MEM0MDAgNjYwIDMwMCA1NjAgMjUwIDM2MEMyMDAgMTYwIDIwMCAwIDIwMCAwIiBzdHJva2U9IiM2YjcyODAiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=');
+  opacity: 0.6;
+}
+
+.signup-flow-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.signup-flow-card {
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 40px 36px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  width: 100%;
+}
+
+.signup-flow-step {
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.signup-flow-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #374151;
+  text-align: center;
+  margin: 0 0 12px 0;
+}
+
+.signup-flow-desc {
+  font-size: 14px;
+  color: #4b5563;
+  text-align: center;
+  margin: 0 0 28px 0;
+  line-height: 1.4;
+}
+
+.signup-flow-form {
+  width: 100%;
+}
+
+.signup-flow-form .form-error {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.signup-flow-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.signup-flow-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.signup-flow-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.signup-flow-field input,
+.signup-flow-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+
+.signup-flow-field input::placeholder,
+.signup-flow-select {
+  color: #6b7280;
+}
+
+.signup-flow-field input:focus,
+.signup-flow-select:focus {
+  border-color: #9ca3af;
+  background: #fff;
+}
+
+.signup-flow-field input[readonly] {
+  background: #f0f0f0;
+  cursor: default;
+}
+
+.signup-flow-full {
+  margin-bottom: 20px;
+}
+
+.signup-flow-shipping-row {
+  align-items: end;
+}
+
+.signup-flow-shipping {
+  flex: 1;
+}
+
+.signup-flow-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.signup-flow-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #1a1a1a;
+  cursor: pointer;
+}
+
+.signup-flow-next {
+  width: 100%;
+  margin-top: 28px;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 12px;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.signup-flow-next:hover {
+  background: #333;
+}
+
+.signup-flow-card .form-back {
+  display: block;
+  width: 100%;
+  padding: 12px 0 0;
+  border: none;
+  background: none;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 8px;
+}
+
+.signup-flow-card .form-back:hover {
+  color: #374151;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .signup-flow-row {
+    grid-template-columns: 1fr;
+  }
+  .signup-flow-shipping-row {
+    flex-wrap: wrap;
+  }
+}
+
+/* Merchant Sign-Up Flow – Step 2: Contacts & users (light bg, wavy right, #F7F7F7 card) */
+.signup-step2-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  background: #fcfcfc;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.signup-step2-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI4MTAiIHZpZXdCb3g9IjAgMCAxNDQwIDgxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyMDAgMTBDMTIwMCAxMCAxMzAwIDEwMCAxMzUwIDIwMEMxNDAwIDMwMCAxNDQwIDUwMCAxNDQwIDcwMEMxNDQwIDgwMCAxNDQwIDgxMCAxNDQwIDgxMCIgc3Ryb2tlPSIjZDFkMWQxIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExNTAgMjBDMTE1MCAyMCAxMjUwIDExMCAxMzAwIDIxMEMxMzUwIDMxMCAxMzkwIDUxMCAxMzkwIDcxMEMxMzkwIDgxMCAxMzkwIDgxMCAxMzkwIDgxMCIgc3Ryb2tlPSIjZDFkMWQxIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExMDAgMzBDMTEwMCAzMCAxMjAwIDEyMCAxMjUwIDIyMEMxMzAwIDMyMCAxMzQwIDUyMCAxMzQwIDcyMEMxMzQwIDgyMCAxMzQwIDgxMCAxMzQwIDgxMCIgc3Ryb2tlPSIjZDFkMWQxIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTEwNTAgNDBDMTA1MCA0MCAxMTUwIDEzMCAxMjAwIDIzMEMxMjUwIDMzMCAxMjkwIDUzMCAxMjkwIDczMEMxMjkwIDgzMCAxMjkwIDgxMCAxMjkwIDgxMCIgc3Ryb2tlPSIjZDFkMWQxIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTEwMDAgNTBDMTAwMCA1MCAxMTAwIDE0MCAxMTUwIDI0MEMxMjAwIDM0NCAxMjQwIDU0NCAxMjQwIDc0NEMxMjQwIDg0NCAxMjQwIDgxMCAxMjQwIDgxMCIgc3Ryb2tlPSIjZDFkMWQxIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  opacity: 0.8;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.signup-step2-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.signup-step2-card {
+  background: #F7F7F7;
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+}
+
+.signup-step2-step {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.signup-step2-heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.signup-step2-desc {
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  margin: 0 0 28px 0;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+.signup-step2-form {
+  width: 100%;
+}
+
+.signup-step2-form .form-error {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.signup-step2-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 16px 0;
+}
+
+.signup-step2-secondary-title {
+  margin-top: 28px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.signup-step2-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.signup-step2-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.signup-step2-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.signup-step2-field input,
+.signup-step2-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #eeeeee;
+  font-size: 14px;
+  color: #111;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+
+.signup-step2-field input::placeholder {
+  color: #6b7280;
+}
+
+.signup-step2-field input:focus,
+.signup-step2-select:focus {
+  border-color: #9ca3af;
+  background: #f5f5f5;
+}
+
+.signup-step2-full {
+  margin-bottom: 16px;
+}
+
+.signup-step2-phone-wrap {
+  display: flex;
+  gap: 0;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #eeeeee;
+}
+
+.signup-step2-country-display-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 76px;
+  border: none;
+  background: #eeeeee;
+}
+
+.signup-step2-country-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px 12px 12px;
+  font-size: 14px;
+  color: #111;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.signup-step2-flag-img {
+  display: block;
+  width: 24px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.signup-step2-flag-emoji-fallback {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.signup-step2-country-select {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 12px 28px 12px 12px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  font-size: 14px;
+  color: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+
+.signup-step2-country-select option {
+  color: #111;
+  background: #fff;
+}
+
+.signup-step2-phone-input {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  background: #eeeeee;
+}
+
+.signup-step2-add-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #000;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+
+.signup-step2-add-btn:hover {
+  background: #333;
+}
+
+.signup-step2-contact-block {
+  margin-bottom: 20px;
+}
+
+.signup-step2-contact-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.signup-step2-contact-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.signup-step2-contact-label-row .signup-step2-contact-label {
+  margin-bottom: 0;
+}
+
+.signup-step2-remove-contact {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #6b7280;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.signup-step2-remove-contact:hover {
+  color: #333;
+}
+
+.signup-step2-contact-block .signup-step2-field input {
+  background: #eeeeee;
+}
+
+.signup-step2-add-more-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  background: #d1d1d1;
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 24px;
+  transition: background 0.2s;
+}
+
+.signup-step2-add-more-btn:hover {
+  background: #c0c0c0;
+}
+
+.signup-step2-next {
+  width: 100%;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 8px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.signup-step2-next:hover {
+  background: #333;
+}
+
+.signup-step2-back {
+  display: block;
+  width: 100%;
+  padding: 12px 0 0;
+  border: none;
+  background: none;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.signup-step2-back:hover {
+  color: #333;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .signup-step2-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Merchant Sign-Up Flow – Step 3: Distribution & Operations Profile (light bg, wavy, #F0F0F0 card, pills) */
+.signup-step3-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  background: #F8F8F8;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.signup-step3-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI4MTAiIHZpZXdCb3g9IjAgMCAxNDQwIDgxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyMDAgMTBDMTIwMCAxMCAxMzAwIDEwMCAxMzUwIDIwMEMxNDAwIDMwMCAxNDQwIDUwMCAxNDQwIDcwMEMxNDQwIDgwMCAxNDQwIDgxMCAxNDQwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExNTAgMjBDMTE1MCAyMCAxMjUwIDExMCAxMzAwIDIxMEMxMzUwIDMxMCAxMzkwIDUxMCAxMzkwIDcxMEMxMzkwIDgxMCAxMzkwIDgxMCAxMzkwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExMDAgMzBDMTEwMCAzMCAxMjAwIDEyMCAxMjUwIDIyMEMxMzAwIDMyMCAxMzQwIDUyMCAxMzQwIDcyMEMxMzQwIDgyMCAxMzQwIDgxMCAxMzQwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTEwNTAgNDBDMTA1MCA0MCAxMTUwIDEzMCAxMjAwIDIzMEMxMjUwIDMzMCAxMjkwIDUzMCAxMjkwIDczMEMxMjkwIDgzMCAxMjkwIDgxMCAxMjkwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTEwMDAgNTBDMTAwMCA1MCAxMTAwIDE0MCAxMTUwIDI0MEMxMjAwIDM0NCAxMjQwIDU0NCAxMjQwIDc0NEMxMjQwIDg0NCAxMjQwIDgxMCAxMjQwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.signup-step3-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.signup-step3-card {
+  background: #F0F0F0;
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+}
+
+.signup-step3-step {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.signup-step3-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.signup-step3-desc {
+  font-size: 14px;
+  color: #333;
+  text-align: center;
+  margin: 0 0 28px 0;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+.signup-step3-form {
+  width: 100%;
+}
+
+.signup-step3-section {
+  margin-bottom: 24px;
+}
+
+.signup-step3-section-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.signup-step3-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.signup-step3-pill {
+  padding: 10px 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  background: #fff;
+  color: #111;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.signup-step3-pill:hover {
+  border-color: #9ca3af;
+}
+
+.signup-step3-pill.selected {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.signup-step3-countries-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  background: #E0E0E0;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.signup-step3-countries-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.signup-step3-country-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 2px 2px 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+}
+
+.signup-step3-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.signup-step3-chip-remove:hover {
+  color: #111;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.signup-step3-flag-img {
+  display: block;
+  width: 24px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.signup-step3-countries-input {
+  flex: 1;
+  min-width: 80px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #111;
+  outline: none;
+}
+
+.signup-step3-countries-input::placeholder {
+  color: #6b7280;
+}
+
+.signup-step3-next {
+  width: 100%;
+  margin-top: 16px;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 10px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.signup-step3-next:hover {
+  background: #333;
+}
+
+.signup-step3-back {
+  display: block;
+  width: 100%;
+  padding: 12px 0 0;
+  border: none;
+  background: none;
+  color: #6b7280;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.signup-step3-back:hover {
+  color: #333;
+  text-decoration: underline;
+}
+
+/* Merchant Sign-Up Flow – Step 4: Ordering setup (same layout as Step 3) */
+.signup-step4-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  background: #F8F8F8;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.signup-step4-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI4MTAiIHZpZXdCb3g9IjAgMCAxNDQwIDgxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyMDAgMTBDMTIwMCAxMCAxMzAwIDEwMCAxMzUwIDIwMEMxNDAwIDMwMCAxNDQwIDUwMCAxNDQwIDcwMEMxNDQwIDgwMCAxNDQwIDgxMCAxNDQwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExNTAgMjBDMTE1MCAyMCAxMjUwIDExMCAxMzAwIDIxMEMxMzUwIDMxMCAxMzkwIDUxMCAxMzkwIDcxMEMxMzkwIDgxMCAxMzkwIDgxMCAxMzkwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.signup-step4-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #333;
+  text-transform: none;
+  letter-spacing: 0;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+/* Merchant Sign-Up Flow – Step 5: Billing & Authorization */
+.signup-step5-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  background: #F8F8F8;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+.signup-step5-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI4MTAiIHZpZXdCb3g9IjAgMCAxNDQwIDgxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyMDAgMTBDMTIwMCAxMCAxMzAwIDEwMCAxMzUwIDIwMEMxNDAwIDMwMCAxNDQwIDUwMCAxNDQwIDcwMEMxNDQwIDgwMCAxNDQwIDgxMCAxNDQwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExNTAgMjBDMTE1MCAyMCAxMjUwIDExMCAxMzAwIDIxMEMxMzUwIDMxMCAxMzkwIDUxMCAxMzkwIDcxMEMxMzkwIDgxMCAxMzkwIDgxMCAxMzkwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.signup-step5-subsection {
+  margin-bottom: 16px;
+}
+
+.signup-step5-subsection:last-of-type {
+  margin-bottom: 0;
+}
+
+.signup-step5-sublabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.signup-step5-upload {
+  display: block;
+  cursor: pointer;
+  border: 2px dashed #d1d5db;
+  border-radius: 10px;
+  background: #f5f5f5;
+  min-height: 120px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.signup-step5-upload:hover {
+  border-color: #9ca3af;
+  background: #eeeeee;
+}
+
+.signup-step5-upload-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.signup-step5-upload-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  min-height: 120px;
+  box-sizing: border-box;
+}
+
+.signup-step5-upload-icon {
+  font-size: 28px;
+  color: #9ca3af;
+  line-height: 1;
+}
+
+.signup-step5-upload-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.signup-step5-upload-hint {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.signup-step5-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0 20px 0;
+}
+
+.signup-step5-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.signup-step5-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: #1a1a1a;
+  cursor: pointer;
+}
+
+.signup-step5-error {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 14px;
+}
+
+.signup-step5-create {
+  width: 100%;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 10px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.signup-step5-create:hover {
+  background: #333;
+}
+
+/* Merchant Sign-Up Flow – Step 6: Account submitted (final confirmation) */
+.signup-step6-page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  min-height: 100vh;
+  background: #F8F8F8;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.signup-step6-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0MCIgaGVpZ2h0PSI4MTAiIHZpZXdCb3g9IjAgMCAxNDQwIDgxMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyMDAgMTBDMTIwMCAxMCAxMzAwIDEwMCAxMzUwIDIwMEMxNDAwIDMwMCAxNDQwIDUwMCAxNDQwIDcwMEMxNDQwIDgwMCAxNDQwIDgxMCAxNDQwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPHBhdGggZD0iTTExNTAgMjBDMTE1MCAyMCAxMjUwIDExMCAxMzAwIDIxMEMxMzUwIDMxMCAxMzkwIDUxMCAxMzkwIDcxMEMxMzkwIDgxMCAxMzkwIDgxMCAxMzkwIDgxMCIgc3Ryb2tlPSIjZDlkOWQ5IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KPC9zdmc+');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.signup-step6-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.signup-step6-card {
+  background: #f5f5f5;
+  border-radius: 12px;
+  padding: 48px 40px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  text-align: center;
+}
+
+.signup-step6-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.signup-step6-icon svg {
+  color: #1a1a1a;
+}
+
+.signup-step6-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.signup-step6-desc {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  margin: 0 0 28px 0;
+  text-align: center;
+}
+
+.signup-step6-next {
+  width: 100%;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 10px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 16px;
+}
+
+.signup-step6-next:hover {
+  background: #333;
+}
+
+.signup-step6-step-label {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .signup-step3-pills {
+    gap: 8px;
+  }
+  .signup-step3-pill {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
+
 @media (max-width: 480px) {
   .login-form-container {
     padding: 15px;
@@ -5039,4 +6378,3 @@ td {
     grid-template-columns: 1fr;
   }
 }
-

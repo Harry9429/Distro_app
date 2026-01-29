@@ -1,6 +1,15 @@
 import type { Role } from '../contexts/AuthContext'
 
-/** Path prefixes or exact paths a role can access. Admin has all tabs and all screens. */
+/** Display labels for roles (pill/badge, profile, login). Single source of truth – correct spelling. */
+export const ROLE_LABEL: Record<Role, string> = {
+  admin: 'Admin',
+  distributor: 'Distributor',
+  merchant: 'Merchant',
+  purchasing_manager: 'Purchasing Manager',
+  finance_manager: 'Finance Manager',
+}
+
+/** Path prefixes or exact paths a role can access. Settings (Profile Setting) for all; Billing tab only admin+finance_manager; Add User only admin. */
 const ROLE_PATH_PREFIXES: Record<Role, string[]> = {
   admin: ['/dashboard', '/overview', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/settings', '/resources', '/submit-ticket'],
   purchasing_manager: ['/dashboard', '/overview', '/orders', '/products', '/settings', '/resources', '/submit-ticket'],
@@ -18,6 +27,8 @@ export function canAccessPath(role: Role, pathname: string): boolean {
 
 export function getDefaultPath(role: Role): string {
   switch (role) {
+    case 'merchant':
+      return '/overview'
     case 'purchasing_manager':
       return '/orders'
     case 'finance_manager':

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import './StandaloneDashboardPage.css'
 
 type InvoiceStatus = 'paid' | 'unpaid'
@@ -44,11 +45,9 @@ const TABS = [
 
 export default function StandaloneDashboardPage() {
   const [invoicesDropdownOpen, setInvoicesDropdownOpen] = useState(false)
-  const [actionsOpenId, setActionsOpenId] = useState<string | null>(null)
   const [viewDetailsOpenId, setViewDetailsOpenId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(3)
   const [search, setSearch] = useState('')
-  const actionsRef = useRef<HTMLDivElement | null>(null)
   const viewDetailsRef = useRef<HTMLDivElement | null>(null)
   const invoicesDropdownRef = useRef<HTMLDivElement | null>(null)
 
@@ -57,19 +56,15 @@ export default function StandaloneDashboardPage() {
 
   useEffect(() => {
     function onPointerDown(e: PointerEvent) {
-      const el = actionsRef.current
-      if (el && e.target instanceof Node && el.contains(e.target)) return
       const v = viewDetailsRef.current
       if (v && e.target instanceof Node && v.contains(e.target)) return
       const d = invoicesDropdownRef.current
       if (d && e.target instanceof Node && d.contains(e.target)) return
-      setActionsOpenId(null)
       setViewDetailsOpenId(null)
       setInvoicesDropdownOpen(false)
     }
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        setActionsOpenId(null)
         setViewDetailsOpenId(null)
         setInvoicesDropdownOpen(false)
       }
@@ -105,7 +100,7 @@ export default function StandaloneDashboardPage() {
               <button
                 key={tab.id}
                 type="button"
-                className={`standalone-tab${tab.active ? ' standalone-tab--active' : ''}`}
+                className={`standalone-tab${'active' in tab && tab.active ? ' standalone-tab--active' : ''}`}
               >
                 {tab.label}
               </button>
@@ -231,23 +226,16 @@ export default function StandaloneDashboardPage() {
                           </span>
                         </td>
                         <td>
-                          <div className="standalone-action-cell" ref={actionsOpenId === row.id ? actionsRef : undefined}>
-                            <button
-                              type="button"
-                              className="standalone-actions-outline-btn"
-                              onClick={() => setActionsOpenId((v) => (v === row.id ? null : row.id))}
-                              aria-expanded={actionsOpenId === row.id}
-                            >
-                              Actions <span className="standalone-btn-caret" aria-hidden>▼</span>
+                          <div className="standalone-action-cell">
+                            <button type="button" className="standalone-export-btn" aria-label="Export">
+                              <svg className="standalone-export-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7 10 12 15 17 10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                              </svg>
+                              Export
                             </button>
-                            <button type="button" className="standalone-void-btn">Void Invoice</button>
-                            {actionsOpenId === row.id && (
-                              <div className="standalone-actions-menu">
-                                <button type="button" className="standalone-actions-menu-item" onClick={() => setActionsOpenId(null)}>Send Reminder</button>
-                                <button type="button" className="standalone-actions-menu-item" onClick={() => setActionsOpenId(null)}>Mark as Paid</button>
-                                <button type="button" className="standalone-actions-menu-item" onClick={() => setActionsOpenId(null)}>Download PDF</button>
-                              </div>
-                            )}
+                            <Link to={`/orders/view/${row.orderId}`} className="standalone-details-btn">Details</Link>
                           </div>
                         </td>
                       </tr>

@@ -35,42 +35,28 @@ const PAGE_SIZE = 10
 const TOTAL_ITEMS = 1000
 
 export default function BillingPage() {
-  const [rows, setRows] = useState<InvoiceRow[]>(() => [...INVOICES])
+  const [rows, _setRows] = useState<InvoiceRow[]>(() => [...INVOICES])
   const [invoicesDropdownOpen, setInvoicesDropdownOpen] = useState(false)
-  const [actionsOpenId, setActionsOpenId] = useState<string | null>(null)
   const [viewDetailsOpenId, setViewDetailsOpenId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(3)
   const [search, setSearch] = useState('')
-  const actionsRef = useRef<HTMLDivElement | null>(null)
   const viewDetailsRef = useRef<HTMLDivElement | null>(null)
   const invoicesDropdownRef = useRef<HTMLDivElement | null>(null)
 
-  const toggleInvoiceStatus = (rowId: string) => {
-    setRows((prev) =>
-      prev.map((r) =>
-        r.id === rowId ? { ...r, status: r.status === 'paid' ? 'unpaid' : 'paid' } : r
-      )
-    )
-    setActionsOpenId(null)
-  }
   const start = (currentPage - 1) * PAGE_SIZE + 1
   const end = Math.min(currentPage * PAGE_SIZE, TOTAL_ITEMS)
 
   useEffect(() => {
     function onPointerDown(e: PointerEvent) {
-      const el = actionsRef.current
-      if (el && e.target instanceof Node && el.contains(e.target)) return
       const v = viewDetailsRef.current
       if (v && e.target instanceof Node && v.contains(e.target)) return
       const d = invoicesDropdownRef.current
       if (d && e.target instanceof Node && d.contains(e.target)) return
-      setActionsOpenId(null)
       setViewDetailsOpenId(null)
       setInvoicesDropdownOpen(false)
     }
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
-        setActionsOpenId(null)
         setViewDetailsOpenId(null)
         setInvoicesDropdownOpen(false)
       }
@@ -180,31 +166,16 @@ export default function BillingPage() {
                   </span>
                 </td>
                 <td>
-                  <div className="billing-actions-wrap" ref={actionsOpenId === row.id ? actionsRef : undefined}>
-                    <button
-                      type="button"
-                      className="billing-actions-btn"
-                      onClick={() => setActionsOpenId((v) => (v === row.id ? null : row.id))}
-                      aria-expanded={actionsOpenId === row.id}
-                      aria-haspopup="menu"
-                    >
-                      Actions
-                      <span className="billing-view-caret" aria-hidden>▼</span>
+                  <div className="billing-actions-wrap">
+                    <button type="button" className="billing-export-btn" aria-label="Export">
+                      <svg className="billing-export-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      Export
                     </button>
-                    <button type="button" className="billing-void-btn">Void Invoice</button>
-                    {actionsOpenId === row.id && (
-                      <div className="billing-actions-menu" role="menu">
-                        <button type="button" className="billing-actions-menu-item" onClick={() => setActionsOpenId(null)}>Send Reminder</button>
-                        <button
-                          type="button"
-                          className="billing-actions-menu-item"
-                          onClick={() => toggleInvoiceStatus(row.id)}
-                        >
-                          {row.status === 'paid' ? 'Mark as Unpaid' : 'Mark as Paid'}
-                        </button>
-                        <button type="button" className="billing-actions-menu-item" onClick={() => setActionsOpenId(null)}>Download PDF</button>
-                      </div>
-                    )}
+                    <Link to={`/orders/view/${row.orderId}`} className="billing-details-btn">Details</Link>
                   </div>
                 </td>
               </tr>

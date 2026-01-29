@@ -30,7 +30,7 @@ function buildChartPaths(
   width: number = CHART_WIDTH,
   height: number = PLOT_HEIGHT,
   paddingTop: number = CHART_PADDING_TOP,
-  paddingBottom: number = CHART_PADDING_BOTTOM
+  _paddingBottom: number = CHART_PADDING_BOTTOM
 ) {
   if (values.length === 0) return { linePath: '', areaPath: '', points: [] as { x: number; y: number }[] }
   const min = Math.min(...values)

@@ -1,17 +1,9 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { NavLink, Navigate, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { CartProvider, useCart, type ProductForCart } from '../contexts/CartContext'
-import { useAuth, type Role } from '../contexts/AuthContext'
-import { canAccessPath, canAccessSidebarSection, canAccessTab, getDefaultPath } from '../lib/rolePermissions'
+import { useAuth } from '../contexts/AuthContext'
+import { canAccessPath, canAccessSidebarSection, canAccessTab, getDefaultPath, ROLE_LABEL } from '../lib/rolePermissions'
 import '../pages/adminOrdersPage.css'
-
-const ROLE_LABEL: Record<Role, string> = {
-  merchant: 'Merchant',
-  distributor: 'Distributor',
-  admin: 'Admin',
-  purchasing_manager: 'Purchasing Manager',
-  finance_manager: 'Finance Manager',
-}
 
 function TabLink({
   to,
@@ -615,13 +607,15 @@ function AdminLayoutInner() {
               </div>
             </div>
             <div className="profile-card-menu">
-              <NavLink to="/settings" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
-                <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.07 5.07l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.07-5.07l4.24-4.24" />
-                </svg>
-                <span>Profile Settings</span>
-              </NavLink>
+              {canAccessSidebarSection(role, '/settings') && (
+                <NavLink to="/settings" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
+                  <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.07 5.07l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.07-5.07l4.24-4.24" />
+                  </svg>
+                  <span>Profile Settings</span>
+                </NavLink>
+              )}
               <NavLink to="/billing" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
                 <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
