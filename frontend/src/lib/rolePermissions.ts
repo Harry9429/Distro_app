@@ -1,8 +1,8 @@
 import type { Role } from '../contexts/AuthContext'
 
-/** Display labels for roles (pill/badge, profile, login). Single source of truth – correct spelling. */
+/** Display labels for roles (pill/badge, profile, login). Admin is treated as Merchant in the UI. */
 export const ROLE_LABEL: Record<Role, string> = {
-  admin: 'Admin',
+  admin: 'Merchant',
   distributor: 'Distributor',
   merchant: 'Merchant',
   purchasing_manager: 'Purchasing Manager',
@@ -11,11 +11,11 @@ export const ROLE_LABEL: Record<Role, string> = {
 
 /** Path prefixes or exact paths a role can access. Settings (Profile Setting) for all; Billing tab only admin+finance_manager; Add User only admin. */
 const ROLE_PATH_PREFIXES: Record<Role, string[]> = {
-  admin: ['/dashboard', '/overview', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/settings', '/resources', '/submit-ticket'],
+  admin: ['/dashboard', '/overview', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/profile', '/distributors', '/settings', '/resources', '/submit-ticket'],
   purchasing_manager: ['/dashboard', '/overview', '/orders', '/products', '/settings', '/resources', '/submit-ticket'],
   finance_manager: ['/dashboard', '/overview', '/approvals', '/orders/view/', '/billing', '/analytics', '/settings', '/resources', '/submit-ticket'],
-  merchant: ['/dashboard', '/overview', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/settings', '/resources', '/submit-ticket'],
-  distributor: ['/dashboard', '/overview', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/settings', '/resources', '/submit-ticket'],
+  merchant: ['/dashboard', '/overview', '/distributors', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/settings', '/resources', '/submit-ticket'],
+  distributor: ['/dashboard', '/overview', '/team', '/orders', '/approvals', '/billing', '/analytics', '/products', '/profile', '/settings', '/resources', '/submit-ticket'],
 }
 
 export function canAccessPath(role: Role, pathname: string): boolean {
@@ -27,8 +27,9 @@ export function canAccessPath(role: Role, pathname: string): boolean {
 
 export function getDefaultPath(role: Role): string {
   switch (role) {
+    case 'admin':
     case 'merchant':
-      return '/overview'
+      return '/distributors'
     case 'purchasing_manager':
       return '/orders'
     case 'finance_manager':

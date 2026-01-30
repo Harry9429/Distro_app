@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { NavLink, Navigate, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Navigate, Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { CartProvider, useCart, type ProductForCart } from '../contexts/CartContext'
 import { useAuth } from '../contexts/AuthContext'
 import { canAccessPath, canAccessSidebarSection, canAccessTab, getDefaultPath, ROLE_LABEL } from '../lib/rolePermissions'
@@ -277,6 +277,26 @@ function AdminLayoutInner() {
               </svg>
             }
           />
+          {canAccessSidebarSection(role, '/distributors') && (
+            <SideLink
+              to="/distributors"
+              label="Distributors"
+              forceActive={location.pathname === '/distributors'}
+              icon={
+                <svg
+                  className="nav-item-icon w-5 h-5 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              }
+            />
+          )}
           <SideLink
             to="/team"
             label="Team"
@@ -523,38 +543,64 @@ function AdminLayoutInner() {
               </svg>
               <span className="notification-badge" />
             </button>
-            <button
-              className="icon-button flex items-center justify-center shrink-0"
-              type="button"
-              aria-label="Cart"
-              aria-expanded={cart.isOpen}
-              onClick={() => (cart.isOpen ? cart.closeCart() : cart.openCart())}
-            >
-              <svg
-                className="icon-button-svg w-[22px] h-[22px] shrink-0 block text-gray-600"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                aria-hidden="true"
+            {(role === 'finance_manager' || role === 'merchant' || role === 'admin') ? (
+              <button
+                className="icon-button icon-button-ellipsis flex items-center justify-center shrink-0"
+                type="button"
+                aria-label="More options"
               >
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
-              </svg>
-            </button>
+                <svg className="icon-button-svg w-[22px] h-[22px] shrink-0 block text-gray-900" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="6" cy="12" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <circle cx="18" cy="12" r="1.5" />
+                </svg>
+              </button>
+            ) : (
+              <button
+                className="icon-button flex items-center justify-center shrink-0"
+                type="button"
+                aria-label="Cart"
+                aria-expanded={cart.isOpen}
+                onClick={() => (cart.isOpen ? cart.closeCart() : cart.openCart())}
+              >
+                <svg
+                  className="icon-button-svg w-[22px] h-[22px] shrink-0 block text-gray-600"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="20" cy="21" r="1" />
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                </svg>
+              </button>
+            )}
+            {(role === 'merchant' || role === 'admin') && (
+              <Link to="/distributors/add" className="top-bar-add-distributor">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add Distributor
+              </Link>
+            )}
           </div>
         </div>
 
         {/* Tabs – hidden on Settings page. Only show tabs the role can access (no disabled tabs) */}
-        {location.pathname !== '/settings' && (
+        {location.pathname !== '/settings' && location.pathname !== '/profile' && location.pathname !== '/distributors/add' && location.pathname !== '/billing' && (
         <div className="tabs">
           {canAccessTab(role, '/overview') && (
             <TabLink
               to="/overview"
-              label="Overview"
+              label="Dashboard"
               forceActive={location.pathname === '/dashboard'}
             />
+          )}
+          {canAccessTab(role, '/distributors') && (
+            <TabLink to="/distributors" label="Distributors" forceActive={location.pathname === '/distributors'} />
           )}
           {canAccessTab(role, '/orders') && (
             <TabLink to="/orders" label="Orders" end />
@@ -623,7 +669,7 @@ function AdminLayoutInner() {
                 </svg>
                 <span>Billing</span>
               </NavLink>
-              <NavLink to="/team" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
+              <NavLink to="/distributors/add" className="profile-menu-item font-medium text-gray-700" onClick={() => setIsProfileCardOpen(false)}>
                 <svg className="profile-menu-icon w-5 h-5 shrink-0 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />

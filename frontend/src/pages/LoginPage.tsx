@@ -2,6 +2,18 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth, type Role, type AuthUser } from '../contexts/AuthContext'
 import { findCountryByName, getFlagEmoji, getFlagImageUrl, parseCountryCodeFromPhone, COUNTRY_PHONE_LIST } from '../lib/countries'
+import {
+  getDistributorDraft,
+  saveDistributorDraftStep,
+  buildProfileFromDraft,
+  setDistributorProfile,
+  clearDistributorDraft,
+  type DistributorStep1,
+  type DistributorStep2,
+  type DistributorStep3,
+  type DistributorStep4,
+  type DistributorStep5,
+} from '../lib/distributorProfile'
 import { getDefaultPath, ROLE_LABEL } from '../lib/rolePermissions'
 import './adminOrdersPage.css'
 
@@ -9,14 +21,14 @@ type LoginView =
   | 'cards'
   | 'merchant-signin'
   | 'merchant-signup'
-  | 'merchant-signup-step1'
-  | 'merchant-signup-step2'
-  | 'merchant-signup-step3'
-  | 'merchant-signup-step4'
-  | 'merchant-signup-step5'
-  | 'merchant-signup-step6'
   | 'distributor-signin'
   | 'distributor-signup'
+  | 'distributor-signup-step1'
+  | 'distributor-signup-step2'
+  | 'distributor-signup-step3'
+  | 'distributor-signup-step4'
+  | 'distributor-signup-step5'
+  | 'distributor-signup-step6'
 
 function AuthForm({
   mode,
@@ -216,18 +228,19 @@ function AuthForm({
   )
 }
 
-function MerchantSignupStep1({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [legalName, setLegalName] = useState('')
-  const [tradingName, setTradingName] = useState('')
-  const [companyRegNo, setCompanyRegNo] = useState('')
-  const [taxId, setTaxId] = useState('')
-  const [yearEst, setYearEst] = useState('')
-  const [website, setWebsite] = useState('')
-  const [country, setCountry] = useState('')
-  const [phone, setPhone] = useState('')
-  const [registeredAddress, setRegisteredAddress] = useState('')
-  const [shippingAddress, setShippingAddress] = useState('')
-  const [sameAsRegistered, setSameAsRegistered] = useState(false)
+export function DistributorSignupStep1({ onNext, onBack }: { onNext: (data: DistributorStep1) => void; onBack: () => void }) {
+  const d = getDistributorDraft().step1
+  const [legalName, setLegalName] = useState(d?.legalName ?? '')
+  const [tradingName, setTradingName] = useState(d?.tradingName ?? '')
+  const [companyRegNo, setCompanyRegNo] = useState(d?.companyRegNo ?? '')
+  const [taxId, setTaxId] = useState(d?.taxId ?? '')
+  const [yearEst, setYearEst] = useState(d?.yearEst ?? '')
+  const [website, setWebsite] = useState(d?.website ?? '')
+  const [country, setCountry] = useState(d?.country ?? '')
+  const [phone, setPhone] = useState(d?.phone ?? '')
+  const [registeredAddress, setRegisteredAddress] = useState(d?.registeredAddress ?? '')
+  const [shippingAddress, setShippingAddress] = useState(d?.shippingAddress ?? '')
+  const [sameAsRegistered, setSameAsRegistered] = useState(d?.sameAsRegistered ?? false)
   const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -237,16 +250,28 @@ function MerchantSignupStep1({ onNext, onBack }: { onNext: () => void; onBack: (
       setError('Legal Company Name is required')
       return
     }
-    onNext()
+    onNext({
+      legalName,
+      tradingName,
+      companyRegNo,
+      taxId,
+      yearEst,
+      website,
+      country,
+      phone,
+      registeredAddress,
+      shippingAddress: sameAsRegistered ? registeredAddress : shippingAddress,
+      sameAsRegistered,
+    })
   }
 
   return (
-    <div className="login-page merchant-signup-flow">
+    <div className="login-page distributor-signup-flow">
       <div className="signup-flow-container">
         <div className="signup-flow-card">
           <p className="signup-flow-step">STEP 1</p>
           <h2 className="signup-flow-heading">COMPANY & LEGAL DETAILS</h2>
-          <p className="signup-flow-desc">This information is required to set up your merchant account and commercial terms.</p>
+          <p className="signup-flow-desc">This information is required to set up your distributor account and commercial terms.</p>
           <form onSubmit={handleSubmit} noValidate className="signup-flow-form">
             {error && <div className="form-error" role="alert">{error}</div>}
             <div className="signup-flow-row">
@@ -387,19 +412,20 @@ function MerchantSignupStep1({ onNext, onBack }: { onNext: () => void; onBack: (
 
 type ExtraContact = { id: number; name: string; email: string }
 
-function MerchantSignupStep2({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [jobTitle, setJobTitle] = useState('')
-  const [workEmail, setWorkEmail] = useState('')
-  const [phoneCountry, setPhoneCountry] = useState('US')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [financeName, setFinanceName] = useState('')
-  const [financeEmail, setFinanceEmail] = useState('')
-  const [opsName, setOpsName] = useState('')
-  const [opsEmail, setOpsEmail] = useState('')
-  const [salesName, setSalesName] = useState('')
-  const [salesEmail, setSalesEmail] = useState('')
+export function DistributorSignupStep2({ onNext, onBack }: { onNext: (data: DistributorStep2) => void; onBack: () => void }) {
+  const d = getDistributorDraft().step2
+  const [firstName, setFirstName] = useState(d?.firstName ?? '')
+  const [lastName, setLastName] = useState(d?.lastName ?? '')
+  const [jobTitle, setJobTitle] = useState(d?.jobTitle ?? '')
+  const [workEmail, setWorkEmail] = useState(d?.workEmail ?? '')
+  const [phoneCountry, setPhoneCountry] = useState(d?.phoneCountry ?? 'US')
+  const [phoneNumber, setPhoneNumber] = useState(d?.phoneNumber ?? '')
+  const [financeName, setFinanceName] = useState(d?.financeName ?? '')
+  const [financeEmail, setFinanceEmail] = useState(d?.financeEmail ?? '')
+  const [opsName, setOpsName] = useState(d?.opsName ?? '')
+  const [opsEmail, setOpsEmail] = useState(d?.opsEmail ?? '')
+  const [salesName, setSalesName] = useState(d?.salesName ?? '')
+  const [salesEmail, setSalesEmail] = useState(d?.salesEmail ?? '')
   const [extraContacts, setExtraContacts] = useState<ExtraContact[]>([])
   const [error, setError] = useState<string | null>(null)
 
@@ -432,7 +458,20 @@ function MerchantSignupStep2({ onNext, onBack }: { onNext: () => void; onBack: (
       setError('Please enter a valid Work Email')
       return
     }
-    onNext()
+    onNext({
+      firstName,
+      lastName,
+      jobTitle,
+      workEmail,
+      phoneCountry,
+      phoneNumber,
+      financeName,
+      financeEmail,
+      opsName,
+      opsEmail,
+      salesName,
+      salesEmail,
+    })
   }
 
   return (
@@ -478,7 +517,7 @@ function MerchantSignupStep2({ onNext, onBack }: { onNext: () => void; onBack: (
                 className="signup-step2-select"
               >
                 <option value="">Select Role</option>
-                <option value="admin">Admin</option>
+                <option value="admin">Merchant</option>
                 <option value="manager">Manager</option>
                 <option value="buyer">Buyer</option>
               </select>
@@ -617,12 +656,13 @@ function MerchantSignupStep2({ onNext, onBack }: { onNext: () => void; onBack: (
 const DISTRIBUTOR_TYPES = ['Regional', 'National', 'Online', 'Retail chain', 'Wholesale', 'B2B only'] as const
 const INDUSTRIES = ['CPG', 'Supplements', 'Beverage', 'Parts', 'Cannabis', 'Electronics', 'Fashion', 'Health', 'Other'] as const
 const LOCATION_COUNTS = ['1', '2-5', '6-20', '20+'] as const
-function MerchantSignupStep3({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [distributorType, setDistributorType] = useState<string>('')
-  const [industries, setIndustries] = useState<Set<string>>(new Set())
-  const [selectedCountries, setSelectedCountries] = useState<string[]>(['US', 'BR', 'DK', 'DE'])
+export function DistributorSignupStep3({ onNext, onBack }: { onNext: (data: DistributorStep3) => void; onBack: () => void }) {
+  const d = getDistributorDraft().step3
+  const [distributorType, setDistributorType] = useState<string>(d?.distributorType ?? '')
+  const [industries, setIndustries] = useState<Set<string>>(new Set(d?.industries ?? []))
+  const [selectedCountries, setSelectedCountries] = useState<string[]>(d?.selectedCountries?.length ? d.selectedCountries : ['US', 'BR', 'DK', 'DE'])
   const [countriesInput, setCountriesInput] = useState('')
-  const [locations, setLocations] = useState<string>('')
+  const [locations, setLocations] = useState<string>(d?.locations ?? '')
 
   const addCountryFromInput = () => {
     const found = findCountryByName(countriesInput, COUNTRY_PHONE_LIST)
@@ -654,7 +694,12 @@ function MerchantSignupStep3({ onNext, onBack }: { onNext: () => void; onBack: (
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onNext()
+    onNext({
+      distributorType,
+      industries: Array.from(industries),
+      selectedCountries,
+      locations,
+    })
   }
 
   return (
@@ -767,13 +812,14 @@ function MerchantSignupStep3({ onNext, onBack }: { onNext: () => void; onBack: (
 const ORDER_FREQUENCY = ['Weekly', 'Bi-weekly', 'Monthly', 'Ad-hoc'] as const
 const ORDER_SIZE = ['<$5k', '$5k-$25k', '$25k-$100k', '$100k+'] as const
 
-function MerchantSignupStep4({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [orderFrequency, setOrderFrequency] = useState<string>('Weekly')
-  const [orderSize, setOrderSize] = useState<string>('<$5k')
+export function DistributorSignupStep4({ onNext, onBack }: { onNext: (data: DistributorStep4) => void; onBack: () => void }) {
+  const d = getDistributorDraft().step4
+  const [orderFrequency, setOrderFrequency] = useState<string>(d?.orderFrequency ?? 'Weekly')
+  const [orderSize, setOrderSize] = useState<string>(d?.orderSize ?? '<$5k')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onNext()
+    onNext({ orderFrequency, orderSize })
   }
 
   return (
@@ -832,11 +878,12 @@ function MerchantSignupStep4({ onNext, onBack }: { onNext: () => void; onBack: (
 const PAYMENT_METHODS = ['Invoice (Net terms)', 'Credit card', 'Bank transfer'] as const
 const CREDIT_TERMS = ['Net 15', 'Net 30', 'Net 60', 'Prepaid'] as const
 
-function MerchantSignupStep5({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [paymentMethod, setPaymentMethod] = useState<string>('')
-  const [creditTerms, setCreditTerms] = useState<string>('')
-  const [authorized, setAuthorized] = useState(false)
-  const [termsAgreed, setTermsAgreed] = useState(false)
+export function DistributorSignupStep5({ onNext, onBack }: { onNext: (data: DistributorStep5) => void; onBack: () => void }) {
+  const d = getDistributorDraft().step5
+  const [paymentMethod, setPaymentMethod] = useState<string>(d?.paymentMethod ?? '')
+  const [creditTerms, setCreditTerms] = useState<string>(d?.creditTerms ?? '')
+  const [authorized, setAuthorized] = useState(d?.authorized ?? false)
+  const [termsAgreed, setTermsAgreed] = useState(d?.termsAgreed ?? false)
   const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -846,7 +893,7 @@ function MerchantSignupStep5({ onNext, onBack }: { onNext: () => void; onBack: (
       setError('Please confirm both checkboxes to continue.')
       return
     }
-    onNext()
+    onNext({ paymentMethod, creditTerms, authorized, termsAgreed })
   }
 
   return (
@@ -928,7 +975,7 @@ function MerchantSignupStep5({ onNext, onBack }: { onNext: () => void; onBack: (
   )
 }
 
-function MerchantSignupStep6({ onNext }: { onNext: () => void }) {
+export function DistributorSignupStep6({ onNext }: { onNext: () => void }) {
   return (
     <div className="signup-step6-page">
       <div className="signup-step6-container">
@@ -957,6 +1004,7 @@ function MerchantSignupStep6({ onNext }: { onNext: () => void }) {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const auth = useAuth()
   const [view, setView] = useState<LoginView>('cards')
 
   const goToApp = (user?: AuthUser) => {
@@ -968,51 +1016,84 @@ export default function LoginPage() {
   if (view === 'merchant-signin') {
     return <AuthForm mode="signin" role="merchant" onSuccess={goToApp} onBack={() => setView('cards')} />
   }
-  if (view === 'merchant-signup-step1') {
+  if (view === 'distributor-signup-step1') {
     return (
-      <MerchantSignupStep1
-        onNext={() => setView('merchant-signup-step2')}
+      <DistributorSignupStep1
+        onNext={(data) => {
+          saveDistributorDraftStep(1, data)
+          setView('distributor-signup-step2')
+        }}
         onBack={() => setView('cards')}
       />
     )
   }
-  if (view === 'merchant-signup-step2') {
+  if (view === 'distributor-signup-step2') {
     return (
-      <MerchantSignupStep2
-        onNext={() => setView('merchant-signup-step3')}
-        onBack={() => setView('merchant-signup-step1')}
+      <DistributorSignupStep2
+        onNext={(data) => {
+          saveDistributorDraftStep(2, data)
+          setView('distributor-signup-step3')
+        }}
+        onBack={() => setView('distributor-signup-step1')}
       />
     )
   }
-  if (view === 'merchant-signup-step3') {
+  if (view === 'distributor-signup-step3') {
     return (
-      <MerchantSignupStep3
-        onNext={() => setView('merchant-signup-step4')}
-        onBack={() => setView('merchant-signup-step2')}
+      <DistributorSignupStep3
+        onNext={(data) => {
+          saveDistributorDraftStep(3, data)
+          setView('distributor-signup-step4')
+        }}
+        onBack={() => setView('distributor-signup-step2')}
       />
     )
   }
-  if (view === 'merchant-signup-step4') {
+  if (view === 'distributor-signup-step4') {
     return (
-      <MerchantSignupStep4
-        onNext={() => setView('merchant-signup-step5')}
-        onBack={() => setView('merchant-signup-step3')}
+      <DistributorSignupStep4
+        onNext={(data) => {
+          saveDistributorDraftStep(4, data)
+          setView('distributor-signup-step5')
+        }}
+        onBack={() => setView('distributor-signup-step3')}
       />
     )
   }
-  if (view === 'merchant-signup-step5') {
+  if (view === 'distributor-signup-step5') {
     return (
-      <MerchantSignupStep5
-        onNext={() => setView('merchant-signup-step6')}
-        onBack={() => setView('merchant-signup-step4')}
+      <DistributorSignupStep5
+        onNext={(data) => {
+          saveDistributorDraftStep(5, data)
+          setView('distributor-signup-step6')
+        }}
+        onBack={() => setView('distributor-signup-step4')}
       />
     )
   }
-  if (view === 'merchant-signup-step6') {
-    return <MerchantSignupStep6 onNext={() => setView('cards')} />
+  if (view === 'distributor-signup-step6') {
+    return (
+      <DistributorSignupStep6
+        onNext={() => {
+          const draft = getDistributorDraft()
+          const profile = buildProfileFromDraft(draft)
+          const email = draft.step2?.workEmail?.trim()?.toLowerCase()
+          if (email && profile) {
+            setDistributorProfile(email, profile)
+            clearDistributorDraft()
+            const result = auth.signup(email, 'Welcome1!', 'distributor')
+            if (result.ok) {
+              setTimeout(() => navigate('/profile'), 0)
+              return
+            }
+          }
+          setView('cards')
+        }}
+      />
+    )
   }
   if (view === 'merchant-signup') {
-    return <AuthForm mode="signup" role="merchant" onSuccess={goToApp} onBack={() => setView('merchant-signup-step5')} />
+    return <AuthForm mode="signup" role="merchant" onSuccess={goToApp} onBack={() => setView('cards')} />
   }
   if (view === 'distributor-signin') {
     return <AuthForm mode="signin" role="distributor" onSuccess={goToApp} onBack={() => setView('cards')} />
@@ -1041,7 +1122,7 @@ export default function LoginPage() {
             <button type="button" className="button primary" onClick={() => setView('merchant-signin')}>
               Sign In
             </button>
-            <button type="button" className="button secondary" onClick={() => setView('merchant-signup-step1')}>
+            <button type="button" className="button secondary" onClick={() => setView('merchant-signup')}>
               Create Account
             </button>
           </div>
@@ -1059,7 +1140,7 @@ export default function LoginPage() {
             <button type="button" className="button primary" onClick={() => setView('distributor-signin')}>
               Sign In
             </button>
-            <button type="button" className="button secondary" onClick={() => setView('distributor-signup')}>
+            <button type="button" className="button secondary" onClick={() => setView('distributor-signup-step1')}>
               Create Account
             </button>
           </div>

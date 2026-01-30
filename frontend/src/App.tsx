@@ -18,6 +18,9 @@ import SettingsPage from './pages/SettingsPage'
 import SubmitTicketPage from './pages/SubmitTicketPage'
 import TeamPage from './pages/TeamPage'
 import StandaloneDashboardPage from './pages/StandaloneDashboardPage'
+import DistributorDetailsPage from './pages/DistributorDetailsPage'
+import DistributorsPage from './pages/DistributorsPage'
+import AddDistributorPage from './pages/AddDistributorPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const auth = useAuth()
@@ -53,6 +56,9 @@ export default function App() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="resources" element={<ResourcesPage />} />
             <Route path="submit-ticket" element={<SubmitTicketPage />} />
+            <Route path="profile" element={<DistributorDetailsPage />} />
+            <Route path="distributors" element={<DistributorsPage />} />
+            <Route path="distributors/add" element={<AddDistributorPage />} />
           </Route>
         </Routes>
       </AuthProvider>

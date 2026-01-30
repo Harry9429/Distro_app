@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Navigate, useSearchParams } from 'react-router-dom'
 import { useAuth, type Role } from '../contexts/AuthContext'
 import './adminOrdersPage.css'
 
@@ -10,7 +10,22 @@ const INITIAL_ADD_USER: AddUserFormState = { firstName: '', lastName: '', email:
 
 export default function SettingsPage() {
   const auth = useAuth()
-  const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab') as SettingsTab | null
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => (tabParam && ['profile', 'billing', 'add-user', 'add-store'].includes(tabParam) ? tabParam : 'profile'))
+  const [isShopifyModalOpen, setIsShopifyModalOpen] = useState(false)
+
+  useEffect(() => {
+    if (tabParam && ['profile', 'billing', 'add-user', 'add-store'].includes(tabParam)) {
+      setActiveTab(tabParam)
+    }
+  }, [tabParam])
+  useEffect(() => {
+    if (isShopifyModalOpen) {
+      document.body.classList.add('shopify-modal-open')
+      return () => document.body.classList.remove('shopify-modal-open')
+    }
+  }, [isShopifyModalOpen])
   const [addUserForm, setAddUserForm] = useState(INITIAL_ADD_USER)
   const [addUserMessage, setAddUserMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -50,28 +65,28 @@ export default function SettingsPage() {
           <button
             type="button"
             className={`settings-tab font-medium text-base${activeTab === 'profile' ? ' active' : ''}`}
-            onClick={() => setActiveTab('profile')}
+            onClick={() => { setActiveTab('profile'); setSearchParams({}) }}
           >
             Profile Setting
           </button>
           <button
             type="button"
             className={`settings-tab font-medium text-base${activeTab === 'billing' ? ' active' : ''}`}
-            onClick={() => setActiveTab('billing')}
+            onClick={() => { setActiveTab('billing'); setSearchParams({ tab: 'billing' }) }}
           >
             Billing
           </button>
           <button
             type="button"
             className={`settings-tab font-medium text-base${activeTab === 'add-user' ? ' active' : ''}`}
-            onClick={() => setActiveTab('add-user')}
+            onClick={() => { setActiveTab('add-user'); setSearchParams({ tab: 'add-user' }) }}
           >
             + Add User
           </button>
           <button
             type="button"
             className={`settings-tab font-medium text-base${activeTab === 'add-store' ? ' active' : ''}`}
-            onClick={() => setActiveTab('add-store')}
+            onClick={() => { setActiveTab('add-store'); setSearchParams({ tab: 'add-store' }) }}
           >
             + Add Store
           </button>
@@ -274,19 +289,17 @@ export default function SettingsPage() {
                   <option value="purchasing_manager">Purchasing Manager</option>
                 </select>
               </div>
-            </div>
-            <div className="settings-add-user-field">
-              <label>Profile Picture</label>
-              <div className="settings-add-user-attachment">
-                <svg className="settings-add-user-attachment-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-                <span>Add an attachment (optional)</span>
+              <div className="settings-add-user-field settings-add-user-field--attachment">
+                <label>Profile Picture</label>
+                <div className="settings-add-user-attachment">
+                  <svg className="settings-add-user-attachment-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                  </svg>
+                  <span>Add an attachment (optional)</span>
+                </div>
               </div>
             </div>
-            <div className="settings-add-user-field">
+            <div className="settings-add-user-field settings-add-user-field--notes">
               <label htmlFor="add-user-notes">Internal Notes</label>
               <textarea id="add-user-notes" className="profile-input settings-add-user-notes" placeholder="Add any notes for internal use" rows={4} />
             </div>
@@ -303,9 +316,122 @@ export default function SettingsPage() {
       )}
 
       {activeTab === 'add-store' && (
-        <div className="settings-tab-content">
-          <h3 className="profile-section-heading">Add Store</h3>
-          <p className="settings-placeholder-desc">Add a new store to manage.</p>
+        <div className="settings-tab-content settings-add-store-tab">
+          <section className="settings-add-store-section settings-add-store-section--centered">
+            <h2 className="settings-add-store-title">Add Store Manually</h2>
+            <form className="settings-add-store-form" onSubmit={(e) => e.preventDefault()}>
+              <div className="settings-add-store-grid">
+                <div className="settings-add-store-field">
+                  <label htmlFor="add-store-name">Store Name</label>
+                  <input id="add-store-name" type="text" className="settings-add-store-input" placeholder="e.g., Aiden" />
+                </div>
+                <div className="settings-add-store-field">
+                  <label htmlFor="add-store-owner">Owner Name</label>
+                  <input id="add-store-owner" type="text" className="settings-add-store-input" placeholder="e.g., Montgomery" />
+                </div>
+                <div className="settings-add-store-field">
+                  <label htmlFor="add-store-email">Email Address</label>
+                  <input id="add-store-email" type="email" className="settings-add-store-input" placeholder="e.g., aiden@example.com" />
+                </div>
+                <div className="settings-add-store-field">
+                  <label htmlFor="add-store-link">Store Link</label>
+                  <input id="add-store-link" type="text" className="settings-add-store-input" placeholder="link to your store" />
+                </div>
+              </div>
+              <div className="settings-add-store-btn-wrap">
+                <button type="submit" className="settings-add-store-btn">Add Store</button>
+              </div>
+            </form>
+          </section>
+
+          <section className="settings-add-store-section settings-add-store-section--shopify settings-add-store-section--centered">
+            <div className="settings-add-store-shopify-header">
+              <div className="settings-add-store-shopify-icons" aria-hidden>
+                <span className="settings-add-store-shopify-tile settings-add-store-shopify-tile--shopify" aria-hidden>
+                  <svg width="42" height="42" viewBox="0 0 48 48" fill="none" aria-hidden>
+                    <rect x="8" y="10" width="32" height="30" rx="4" fill="#111111"/>
+                    <path d="M18 12c0-3 2.5-6 6-6s6 3 6 6" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M21 26c0-3 3-5 6-5 2 0 4 .7 5 1.5" stroke="#ffffff" strokeWidth="2" strokeLinecap="round"/>
+                    <text x="24" y="33" textAnchor="middle" fontSize="14" fontWeight="700" fill="#ffffff">S</text>
+                  </svg>
+                </span>
+                <span className="settings-add-store-shopify-plus">+</span>
+                <span className="settings-add-store-shopify-tile settings-add-store-shopify-tile--app" aria-hidden>
+                  <svg width="42" height="42" viewBox="0 0 48 48" fill="none" stroke="#111111" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M24 12c3 0 6 2 6 6s-3 6-6 6-6-2-6-6 3-6 6-6z"/>
+                    <path d="M12 24h6M30 24h6M24 12v-6M24 42v-6M16.5 16.5l-4-4M31.5 31.5l4 4M31.5 16.5l4-4M16.5 31.5l-4 4"/>
+                  </svg>
+                </span>
+              </div>
+              <h2 className="settings-add-store-title">Integrate with Shopify</h2>
+              <p className="settings-add-store-shopify-desc">In order to use full functionality of the app, an active shopify connection is required.</p>
+            </div>
+            <div className="settings-add-store-shopify-input-wrap">
+              <input
+                type="text"
+                className="settings-add-store-input settings-add-store-shopify-input"
+                placeholder="your-store-name"
+                aria-label="Shopify store name"
+              />
+              <span className="settings-add-store-shopify-suffix">.myshopify.com</span>
+            </div>
+            <div className="settings-add-store-btn-wrap">
+              <button type="button" className="settings-add-store-btn" onClick={() => setIsShopifyModalOpen(true)}>Integrate now</button>
+            </div>
+          </section>
+          {isShopifyModalOpen && (
+            <div
+              className="shopify-modal-backdrop"
+              role="dialog"
+              aria-modal="true"
+              onClick={(e) => e.target === e.currentTarget && setIsShopifyModalOpen(false)}
+            >
+              <div className="shopify-modal" onClick={(e) => e.stopPropagation()}>
+                <button
+                  type="button"
+                  className="shopify-modal-close"
+                  aria-label="Close"
+                  onClick={() => setIsShopifyModalOpen(false)}
+                >
+                  ×
+                </button>
+                <div className="shopify-modal-body">
+                  <div className="shopify-modal-form-grid">
+                    <input className="shopify-modal-input" type="text" placeholder="Store Name" aria-label="Store Name" />
+                    <input className="shopify-modal-input" type="text" placeholder="Owner Name" aria-label="Owner Name" />
+                    <input className="shopify-modal-input" type="email" placeholder="Email Address" aria-label="Email Address" />
+                    <input className="shopify-modal-input" type="text" placeholder="Store Link" aria-label="Store Link" />
+                  </div>
+                  <div className="shopify-modal-btn-wrap">
+                    <button type="button" className="shopify-modal-btn">Add Store</button>
+                  </div>
+
+                  <div className="shopify-modal-divider" />
+
+                  <div className="shopify-modal-connect">
+                    <div className="shopify-modal-icons" aria-hidden>
+                      <span className="shopify-modal-icon-box">
+                        <span className="shopify-modal-icon-text">S</span>
+                      </span>
+                      <span className="shopify-modal-plus">+</span>
+                      <span className="shopify-modal-icon-box">
+                        <span className="shopify-modal-icon-knot" />
+                      </span>
+                    </div>
+                    <h3 className="shopify-modal-title">Integrate with Shopify</h3>
+                    <p className="shopify-modal-desc">In order to use full functionality of the app, an active shopify connection is required.</p>
+                    <div className="shopify-modal-input-wrap">
+                      <input className="shopify-modal-input shopify-modal-input--store" type="text" placeholder="your-store-name" aria-label="Shopify store name" />
+                      <span className="shopify-modal-suffix">.myshopify.com</span>
+                    </div>
+                    <div className="shopify-modal-btn-wrap">
+                      <button type="button" className="shopify-modal-btn">Integrate now</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

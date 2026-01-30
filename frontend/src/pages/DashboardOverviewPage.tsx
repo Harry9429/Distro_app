@@ -1,261 +1,141 @@
+import { useEffect, useState } from 'react'
+
 export default function DashboardOverviewPage() {
+  const [isShopifyModalOpen, setIsShopifyModalOpen] = useState(false)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+
+  useEffect(() => {
+    if (isShopifyModalOpen || isImportModalOpen) {
+      document.body.classList.add('shopify-modal-open')
+      return () => document.body.classList.remove('shopify-modal-open')
+    }
+  }, [isShopifyModalOpen, isImportModalOpen])
+
   return (
-    <div className="content-area">
-      <h2 className="section-title text-2xl font-semibold text-gray-900">Quick Overview</h2>
-
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Total Orders Placed</div>
-          <div className="stat-value">12.4k</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Active Orders</div>
-          <div className="stat-value">3</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Backordered / Issues</div>
-          <div className="stat-value">2</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Pending Approvals</div>
-          <div className="stat-value">4</div>
-        </div>
+    <div className="content-area admin-dashboard">
+      <div className="admin-dashboard-intro">
+        <p className="admin-dashboard-kicker">We’ll walk you through this — 10 minutes total.</p>
+        <h2 className="admin-dashboard-title">Let’s get your distributor system ready</h2>
+        <p className="admin-dashboard-subtitle">Complete these steps to start accepting distributor orders.</p>
       </div>
 
-      {/* Filters */}
-      <div className="filters">
-        <button className="filter-button text-sm font-medium text-gray-700" type="button">
-          Filter by status <span aria-hidden="true">▼</span>
+      <div className="admin-dashboard-steps">
+        <button
+          type="button"
+          className="admin-dashboard-step admin-dashboard-step--done"
+          onClick={() => setIsShopifyModalOpen(true)}
+        >
+          <span className="admin-dashboard-step-label">STEP 1</span>
+          <span className="admin-dashboard-step-text">Connect Your Store</span>
+          <span className="admin-dashboard-step-icon" aria-hidden>✓</span>
         </button>
-        <button className="filter-button text-sm font-medium text-gray-700" type="button">
-          Filter by date <span aria-hidden="true">▼</span>
+        <button type="button" className="admin-dashboard-step" onClick={() => setIsImportModalOpen(true)}>
+          <span className="admin-dashboard-step-label">STEP 2</span>
+          <span className="admin-dashboard-step-text">Add Your Products</span>
+          <span className="admin-dashboard-step-chevron" aria-hidden>›</span>
         </button>
+        {[
+          'Configure Payments & Order Flow',
+          'Set Default Pricing Rules',
+          'Configure Approval Rules',
+          'Add Your First Distributor',
+        ].map((label, i) => (
+          <button key={label} type="button" className="admin-dashboard-step">
+            <span className="admin-dashboard-step-label">STEP {i + 3}</span>
+            <span className="admin-dashboard-step-text">{label}</span>
+            <span className="admin-dashboard-step-chevron" aria-hidden>›</span>
+          </button>
+        ))}
       </div>
 
-      {/* Action Cards */}
-      <div className="action-cards">
-        <div className="action-card">
-          <div className="action-header">
-            <svg
-              className="action-icon w-6 h-6 shrink-0 text-gray-600"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
+      <button type="button" className="admin-dashboard-cta">Go to Dashboard</button>
+
+      {isShopifyModalOpen && (
+        <div
+          className="shopify-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => e.target === e.currentTarget && setIsShopifyModalOpen(false)}
+        >
+          <div className="shopify-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="shopify-modal-close"
+              aria-label="Close"
+              onClick={() => setIsShopifyModalOpen(false)}
             >
-              <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-            <div className="action-info">
-              <h3>Quick Order</h3>
-              <p>Start a new order quickly with SKU search.</p>
+              ×
+            </button>
+            <div className="shopify-modal-body">
+              <div className="shopify-modal-form-grid">
+                <input className="shopify-modal-input" type="text" placeholder="Store Name" aria-label="Store Name" />
+                <input className="shopify-modal-input" type="text" placeholder="Owner Name" aria-label="Owner Name" />
+                <input className="shopify-modal-input" type="email" placeholder="Email Address" aria-label="Email Address" />
+                <input className="shopify-modal-input" type="text" placeholder="Store Link" aria-label="Store Link" />
+              </div>
+              <div className="shopify-modal-btn-wrap">
+                <button type="button" className="shopify-modal-btn">Add Store</button>
+              </div>
+
+              <div className="shopify-modal-divider" />
+
+              <div className="shopify-modal-connect">
+                <div className="shopify-modal-icons" aria-hidden>
+                  <span className="shopify-modal-icon-box">
+                    <span className="shopify-modal-icon-text">S</span>
+                  </span>
+                  <span className="shopify-modal-plus">+</span>
+                  <span className="shopify-modal-icon-box">
+                    <span className="shopify-modal-icon-knot" />
+                  </span>
+                </div>
+                <h3 className="shopify-modal-title">Integrate with Shopify</h3>
+                <p className="shopify-modal-desc">In order to use full functionality of the app, an active shopify connection is required.</p>
+                <div className="shopify-modal-input-wrap">
+                  <input className="shopify-modal-input shopify-modal-input--store" type="text" placeholder="your-store-name" aria-label="Shopify store name" />
+                  <span className="shopify-modal-suffix">.myshopify.com</span>
+                </div>
+                <div className="shopify-modal-btn-wrap">
+                  <button type="button" className="shopify-modal-btn">Integrate now</button>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="product-images">
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%234a3020' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-size='10' text-anchor='middle' dy='.3em'%3EPOWER%3C/text%3E%3C/svg%3E"
-              alt="Product 1"
-              className="product-image"
-            />
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%2390c090' width='80' height='80'/%3E%3Ccircle cx='40' cy='40' r='30' fill='%236aa06a'/%3E%3C/svg%3E"
-              alt="Product 2"
-              className="product-image"
-            />
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23c04040' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-size='8' text-anchor='middle' dy='.3em'%3EGUMMIES%3C/text%3E%3C/svg%3E"
-              alt="Product 3"
-              className="product-image"
-            />
-          </div>
-          <button className="action-button" type="button">
-            Order <span aria-hidden="true">→</span>
-          </button>
         </div>
+      )}
 
-        <div className="action-card">
-          <div className="action-header">
-            <svg
-              className="action-icon w-6 h-6 shrink-0 text-gray-600"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
+      {isImportModalOpen && (
+        <div
+          className="shopify-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          onClick={(e) => e.target === e.currentTarget && setIsImportModalOpen(false)}
+        >
+          <div className="shopify-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="shopify-modal-close"
+              aria-label="Close"
+              onClick={() => setIsImportModalOpen(false)}
             >
-              <path d="M4 7h16M4 12h16M4 17h16" />
-              <path d="M21 7v10" />
-            </svg>
-            <div className="action-info">
-              <h3>Reorder Last Order</h3>
-              <p>Order #1234 from 2023-10-01, Total: $1,200</p>
+              ×
+            </button>
+            <div className="shopify-import-content">
+              <h3 className="shopify-import-title">Import Products</h3>
+              <div className="shopify-import-card">
+                <span className="shopify-import-badge">
+                  <span className="shopify-import-dot" aria-hidden />
+                  Connected
+                </span>
+                <span className="shopify-import-logo" aria-hidden>
+                  <span className="shopify-import-logo-text">S</span>
+                </span>
+              </div>
+              <button type="button" className="shopify-import-btn">Start Importing</button>
             </div>
           </div>
-          <div className="product-images">
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%234a3020' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-size='10' text-anchor='middle' dy='.3em'%3EPOWER%3C/text%3E%3C/svg%3E"
-              alt="Product 1"
-              className="product-image"
-            />
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%2390c090' width='80' height='80'/%3E%3Ccircle cx='40' cy='40' r='30' fill='%236aa06a'/%3E%3C/svg%3E"
-              alt="Product 2"
-              className="product-image"
-            />
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23c04040' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-size='8' text-anchor='middle' dy='.3em'%3EGUMMIES%3C/text%3E%3C/svg%3E"
-              alt="Product 3"
-              className="product-image"
-            />
-          </div>
-          <button className="action-button" type="button">
-            Order <span aria-hidden="true">→</span>
-          </button>
         </div>
-
-        <div className="action-card">
-          <div className="action-header">
-            <svg
-              className="action-icon w-6 h-6 shrink-0 text-gray-600"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
-            <div className="action-info">
-              <h3>Saved Order Templates</h3>
-              <p>Template for Monthly Replenishment</p>
-            </div>
-          </div>
-          <div className="product-images">
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%234a3020' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-size='10' text-anchor='middle' dy='.3em'%3EPOWER%3C/text%3E%3C/svg%3E"
-              alt="Product 1"
-              className="product-image"
-            />
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%2390c090' width='80' height='80'/%3E%3Ccircle cx='40' cy='40' r='30' fill='%236aa06a'/%3E%3C/svg%3E"
-              alt="Product 2"
-              className="product-image"
-            />
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Crect fill='%23c04040' width='80' height='80'/%3E%3Ctext x='50%25' y='50%25' fill='white' font-size='8' text-anchor='middle' dy='.3em'%3EGUMMIES%3C/text%3E%3C/svg%3E"
-              alt="Product 3"
-              className="product-image"
-            />
-          </div>
-          <button className="action-button" type="button">
-            Order <span aria-hidden="true">→</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Order Requests Table with Profile Card Overlay */}
-      <div className="order-requests-wrapper">
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: 40 }} />
-                <th>Order ID</th>
-                <th />
-                <th>Submitted By</th>
-                <th>Item Count</th>
-                <th>Order Date</th>
-                <th>Total</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4573</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Hanzla</td>
-                <td>15 items</td>
-                <td>2023-10-01</td>
-                <td>$1500</td>
-                <td>
-                  <span className="status-badge delivered">Delivered</span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4724</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Sherry</td>
-                <td>20 items</td>
-                <td>2023-10-02</td>
-                <td>$2000</td>
-                <td>
-                  <span className="status-badge in-transit">In Transit</span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4773</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Areeba</td>
-                <td>10 items</td>
-                <td>2023-10-03</td>
-                <td>$1000</td>
-                <td>
-                  <span className="status-badge on-hold">On Hold</span>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <input type="checkbox" className="checkbox" />
-                </td>
-                <td>
-                  <strong>Order ID #4863</strong>
-                </td>
-                <td>
-                  <button className="view-request-button" type="button">
-                    View Request <span aria-hidden="true">▼</span>
-                  </button>
-                </td>
-                <td>Hanzla</td>
-                <td>40 items</td>
-                <td>2023-10-03</td>
-                <td>$4000</td>
-                <td>
-                  <span className="status-badge in-transit">In Transit</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
-
